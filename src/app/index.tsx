@@ -1,98 +1,76 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Link, Redirect, useRouter } from 'expo-router'
+import { ScrollView, Text, View } from 'react-native'
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { Eyebrow } from '@/components/ui/heading'
+import { useAuthStore } from '@/stores/auth-store'
 
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
+export default function Index() {
+  const session = useAuthStore(state => state.session)
+  const profile = useAuthStore(state => state.profile)
+
+  if (session) {
+    if (profile?.role === 'trainer') {
+      return <Redirect href="/(trainer)/clients" />
+    }
+    return <Redirect href="/(client)/home" />
   }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
-  return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
+
+  return <Landing />
 }
 
-export default function HomeScreen() {
+function Landing() {
+  const router = useRouter()
+
   return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
+    <ScrollView className="flex-1 bg-coal" contentContainerClassName="px-6 pb-16 pt-16">
+      <View className="mb-14 flex-row items-center justify-between">
+        <View>
+          <Text className="font-display-bold text-lg tracking-[2px] text-ivory">DAVID DUBSKÝ</Text>
+          <Text className="mt-1 font-display-medium text-[9px] tracking-[4px] text-muted">COACHING</Text>
+        </View>
+        <Link href="/login">
+          <Text className="font-sans-medium text-sm text-gold">Přihlásit se</Text>
+        </Link>
+      </View>
 
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
+      <Eyebrow className="mb-4">Kompletní vedení · Celá ČR</Eyebrow>
 
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
+      <Text className="font-display-bold text-4xl uppercase leading-[1.05] text-ivory">Nezůstaneš na to</Text>
+      <Text className="mb-6 font-display-bold text-4xl uppercase leading-[1.05] text-gold">Sám.</Text>
+      <View className="mb-6 h-px w-10 bg-gold" />
 
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
-  );
+      <Text className="mb-8 text-base leading-6 text-muted">
+        Už jsi to zkoušel sám a po měsíci to vyšumělo. Tentokrát dostaneš plán, jídelníček – a hlavně někoho, kdo se
+        každý týden podívá, jak ti to jde, a podle toho to změní.
+      </Text>
+
+      <Button label="Chci začít" onPress={() => router.push('/signup')} className="mb-3" />
+      <Text className="mb-10 text-xs text-muted">Nejdřív zjistíme, co dává smysl pro tebe.</Text>
+
+      <View className="mb-10 flex-row border-t border-border-soft pt-6">
+        <Stat value="11 let" label="ve fitness" />
+        <Stat value="100+" label="vedených klientů" />
+        <Stat value="Týdně" label="kontrola pokroku" />
+      </View>
+
+      <Card>
+        <Eyebrow className="mb-2">Krok 4</Eyebrow>
+        <Text className="mb-2 font-display-bold text-xl uppercase text-ivory">Nejsi v tom sám</Text>
+        <Text className="text-sm leading-5 text-muted">
+          Za appkou i plánem jsem já. Vím, kde v tom jsi, a nenechám tě to vzdát.
+        </Text>
+      </Card>
+    </ScrollView>
+  )
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
-  },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
-  },
-  title: {
-    textAlign: 'center',
-  },
-  code: {
-    textTransform: 'uppercase',
-  },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
-  },
-});
+function Stat({ value, label }: { value: string; label: string }) {
+  return (
+    <View className="flex-1">
+      <Text className="font-display-bold text-xl text-gold">{value}</Text>
+      <Text className="mt-1 text-xs text-muted">{label}</Text>
+    </View>
+  )
+}
