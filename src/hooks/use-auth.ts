@@ -1,4 +1,8 @@
+import * as Linking from 'expo-linking'
+import * as WebBrowser from 'expo-web-browser'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Platform } from 'react-native'
 
 import { supabase } from '@/lib/supabase'
 import { isValidEmail } from '@/lib/validate-email'
@@ -6,6 +10,7 @@ import { useAuthStore } from '@/stores/auth-store'
 import type { Message } from '@/components/ui/message-banner'
 
 export const useAuth = () => {
+  const { t } = useTranslation()
   const setIsSubmitting = useAuthStore(state => state.setIsSubmitting)
   const [email, setEmailRaw] = useState('')
   const [password, setPassword] = useState('')
@@ -20,7 +25,7 @@ export const useAuth = () => {
 
   const handleEmailBlur = () => {
     if (email && !isValidEmail(email)) {
-      setEmailError('Email není ve správném formátu')
+      setEmailError(t('auth.emailInvalid'))
     } else {
       setEmailError(null)
     }
@@ -30,11 +35,11 @@ export const useAuth = () => {
     setMessage(null)
 
     if (!email || !password) {
-      setMessage({ type: 'error', text: 'Zadej email a heslo' })
+      setMessage({ type: 'error', text: t('auth.fillEmailAndPassword') })
       return
     }
     if (!isValidEmail(email)) {
-      setMessage({ type: 'error', text: 'Email není ve správném formátu' })
+      setMessage({ type: 'error', text: t('auth.emailInvalid') })
       return
     }
     setIsSubmitting(true)
@@ -42,7 +47,7 @@ export const useAuth = () => {
     setIsSubmitting(false)
 
     if (error) {
-      setMessage({ type: 'error', text: 'Neplatné přihlašovací údaje' })
+      setMessage({ type: 'error', text: t('auth.invalidCredentials') })
     }
   }
 
@@ -50,11 +55,11 @@ export const useAuth = () => {
     setMessage(null)
 
     if (!email || !password) {
-      setMessage({ type: 'error', text: 'Zadej email a heslo' })
+      setMessage({ type: 'error', text: t('auth.fillEmailAndPassword') })
       return
     }
     if (!isValidEmail(email)) {
-      setMessage({ type: 'error', text: 'Email není ve správném formátu' })
+      setMessage({ type: 'error', text: t('auth.emailInvalid') })
       return
     }
     setIsSubmitting(true)
@@ -94,7 +99,7 @@ export const useAuth = () => {
       setEmailRaw('')
       setPassword('')
       setFullName('')
-      setMessage({ type: 'success', text: 'Registrační údaje jsme odeslali na tvůj email — potvrď ho kliknutím na odkaz' })
+      setMessage({ type: 'success', text: t('auth.signupSuccess') })
     }
   }
 
@@ -102,15 +107,51 @@ export const useAuth = () => {
     await supabase.auth.signOut()
   }
 
+  const handleGoogleSignIn = async () => {
+    setMessage(null)
+    setIsSubmitting(true)
+
+    const redirectTo = Platform.OS === 'web' ? window.location.origin : Linking.createURL('/')
+
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo, skipBrowserRedirect: Platform.OS !== 'web' },
+    })
+
+    if (error || !data.url) {
+      setIsSubmitting(false)
+      setMessage({ type: 'error', text: t('auth.googleSignInFailed') })
+      return
+    }
+
+    // On web, signInWithOAuth already redirected the whole page to Google —
+    // nothing left to do here. Native opens it in an in-app browser instead
+    // and has to finish the exchange itself once Google redirects back.
+    if (Platform.OS !== 'web') {
+      const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo)
+
+      if (result.type === 'success' && result.url) {
+        const code = new URL(result.url).searchParams.get('code')
+        if (code) {
+          const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
+          if (exchangeError) {
+            setMessage({ type: 'error', text: t('auth.googleSignInFailed') })
+          }
+        }
+      }
+      setIsSubmitting(false)
+    }
+  }
+
   const handleSendPasswordRecovery = async () => {
     setMessage(null)
 
     if (!email) {
-      setMessage({ type: 'error', text: 'Zadej email' })
+      setMessage({ type: 'error', text: t('auth.fillEmail') })
       return
     }
     if (!isValidEmail(email)) {
-      setMessage({ type: 'error', text: 'Email není ve správném formátu' })
+      setMessage({ type: 'error', text: t('auth.emailInvalid') })
       return
     }
     setIsSubmitting(true)
@@ -118,9 +159,9 @@ export const useAuth = () => {
     setIsSubmitting(false)
 
     if (error) {
-      setMessage({ type: 'error', text: 'Obnovení hesla se nezdařilo' })
+      setMessage({ type: 'error', text: t('auth.resetPasswordFailed') })
     } else {
-      setMessage({ type: 'success', text: 'Zkontroluj email pro instrukce na obnovení hesla' })
+      setMessage({ type: 'success', text: t('auth.resetPasswordSuccess') })
     }
   }
 
@@ -137,6 +178,7 @@ export const useAuth = () => {
     handleSignIn,
     handleSignUp,
     handleSignOut,
+    handleGoogleSignIn,
     handleSendPasswordRecovery,
   }
 }

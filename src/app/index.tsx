@@ -1,5 +1,6 @@
 import { Link, Redirect, useRouter } from 'expo-router'
-import { ScrollView, Text, View } from 'react-native'
+import { useTranslation } from 'react-i18next'
+import { ActivityIndicator, ScrollView, Text, View } from 'react-native'
 
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -10,11 +11,22 @@ export default function Index() {
   const session = useAuthStore(state => state.session)
   const profile = useAuthStore(state => state.profile)
 
-  if (session) {
-    if (profile?.role === 'trainer') {
+  if (session && profile) {
+    if (profile.role === 'trainer') {
       return <Redirect href="/(trainer)/clients" />
     }
     return <Redirect href="/(client)/home" />
+  }
+
+  if (session && !profile) {
+    // Signed in, but the profile fetch hasn't resolved yet — redirecting now
+    // would hit the (client)/(trainer) Stack.Protected guards before they're
+    // satisfied and leave the app stuck on a blank screen.
+    return (
+      <View className="flex-1 items-center justify-center bg-coal">
+        <ActivityIndicator color="#D2A85E" />
+      </View>
+    )
   }
 
   return <Landing />
@@ -22,45 +34,51 @@ export default function Index() {
 
 function Landing() {
   const router = useRouter()
+  const { t } = useTranslation()
 
   return (
     <ScrollView className="flex-1 bg-coal" contentContainerClassName="px-6 pb-16 pt-16">
       <View className="mb-14 flex-row items-center justify-between">
         <View>
-          <Text className="font-display-bold text-lg tracking-[2px] text-ivory">DAVID DUBSKÝ</Text>
-          <Text className="mt-1 font-display-medium text-[9px] tracking-[4px] text-muted">COACHING</Text>
+          <Text className="font-display-bold text-lg tracking-[2px] text-ivory">
+            {t('landing.brandName').toUpperCase()}
+          </Text>
+          <Text className="mt-1 font-display-medium text-[9px] tracking-[4px] text-muted">
+            {t('landing.brandSub').toUpperCase()}
+          </Text>
         </View>
-        <Link href="/login">
-          <Text className="font-sans-medium text-sm text-gold">Přihlásit se</Text>
-        </Link>
+        <View className="items-end gap-3">
+          <Link href="/login">
+            <Text className="font-sans-medium text-sm text-gold">{t('landing.signIn')}</Text>
+          </Link>
+        </View>
       </View>
 
-      <Eyebrow className="mb-4">Kompletní vedení · Celá ČR</Eyebrow>
+      <Eyebrow className="mb-4">{t('landing.eyebrow')}</Eyebrow>
 
-      <Text className="font-display-bold text-4xl uppercase leading-[1.05] text-ivory">Nezůstaneš na to</Text>
-      <Text className="mb-6 font-display-bold text-4xl uppercase leading-[1.05] text-gold">Sám.</Text>
+      <Text className="font-display-bold text-4xl uppercase leading-[1.05] text-ivory">
+        {t('landing.headingLine1')}
+      </Text>
+      <Text className="mb-6 font-display-bold text-4xl uppercase leading-[1.05] text-gold">
+        {t('landing.headingLine2')}
+      </Text>
       <View className="mb-6 h-px w-10 bg-gold" />
 
-      <Text className="mb-8 text-base leading-6 text-muted">
-        Už jsi to zkoušel sám a po měsíci to vyšumělo. Tentokrát dostaneš plán, jídelníček – a hlavně někoho, kdo se
-        každý týden podívá, jak ti to jde, a podle toho to změní.
-      </Text>
+      <Text className="mb-8 text-base leading-6 text-muted">{t('landing.body')}</Text>
 
-      <Button label="Chci začít" onPress={() => router.push('/signup')} className="mb-3" />
-      <Text className="mb-10 text-xs text-muted">Nejdřív zjistíme, co dává smysl pro tebe.</Text>
+      <Button label={t('landing.cta')} onPress={() => router.push('/signup')} className="mb-3" />
+      <Text className="mb-10 text-xs text-muted">{t('landing.ctaNote')}</Text>
 
       <View className="mb-10 flex-row border-t border-border-soft pt-6">
-        <Stat value="11 let" label="ve fitness" />
-        <Stat value="100+" label="vedených klientů" />
-        <Stat value="Týdně" label="kontrola pokroku" />
+        <Stat value={t('landing.statYears')} label={t('landing.statYearsLabel')} />
+        <Stat value={t('landing.statClients')} label={t('landing.statClientsLabel')} />
+        <Stat value={t('landing.statFrequency')} label={t('landing.statFrequencyLabel')} />
       </View>
 
       <Card>
-        <Eyebrow className="mb-2">Krok 4</Eyebrow>
-        <Text className="mb-2 font-display-bold text-xl uppercase text-ivory">Nejsi v tom sám</Text>
-        <Text className="text-sm leading-5 text-muted">
-          Za appkou i plánem jsem já. Vím, kde v tom jsi, a nenechám tě to vzdát.
-        </Text>
+        <Eyebrow className="mb-2">{t('landing.stepLabel')}</Eyebrow>
+        <Text className="mb-2 font-display-bold text-xl uppercase text-ivory">{t('landing.stepTitle')}</Text>
+        <Text className="text-sm leading-5 text-muted">{t('landing.stepBody')}</Text>
       </Card>
     </ScrollView>
   )

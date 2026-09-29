@@ -9,6 +9,36 @@ create table profiles (
   role user_role not null default 'client',
   trainer_id uuid references profiles (id) on delete set null,
   avatar_url text,
+  -- Training/nutrition-relevant profile info (all optional, client-editable).
+  date_of_birth date,
+  sex text,
+  height_cm numeric,
+  fitness_goal text,
+  activity_level text,
+  health_conditions text,
+  dietary_restrictions text,
+  phone text,
+  created_at timestamptz not null default now()
+);
+
+-- A trainer's roster entry for a client who hasn't signed up yet. Filled in
+-- by the trainer (name, contact info, starting stats); once someone signs
+-- up with a matching email, the app auto-links them to this trainer and
+-- copies these fields onto their profile (see fetchOrCreateProfile).
+create table client_intake (
+  id uuid primary key default gen_random_uuid(),
+  trainer_id uuid not null references profiles (id) on delete cascade,
+  full_name text not null,
+  email text not null,
+  phone text,
+  age smallint,
+  weight_kg numeric,
+  height_cm numeric,
+  sex text,
+  fitness_goal text,
+  notes text,
+  claimed_by uuid references profiles (id) on delete set null,
+  claimed_at timestamptz,
   created_at timestamptz not null default now()
 );
 
@@ -18,14 +48,63 @@ create table workouts (
   trainer_id uuid not null references profiles (id) on delete cascade,
   title text not null,
   scheduled_date date,
+  -- What kind of session this is (home / gym / cardio / rehab / ...) — lets
+  -- the client's workout list group/tab by category instead of one flat list.
+  category text,
   created_at timestamptz not null default now()
+);
+
+-- Shared exercise library: one canonical exercise (e.g. "squat") can have a
+-- translated name + demo video per language, reused across every workout
+-- instead of trainers re-typing/re-linking the same video for every client.
+create table exercises (
+  id uuid primary key default gen_random_uuid(),
+  slug text unique not null,
+  -- Coaching metadata (language-independent, so it lives here rather than
+  -- in exercise_translations). All optional/free-form-ish so the library
+  -- can grow without needing a migration for every new tag.
+  muscle_groups text[] not null default '{}',
+  movement_type text,
+  difficulty text,
+  equipment text,
+  min_age smallint,
+  max_age smallint,
+  -- Health conditions this exercise should be avoided/adapted for — cross-
+  -- referenced against profiles.health_conditions when suggesting exercises.
+  contraindications text[] not null default '{}',
+  created_at timestamptz not null default now()
+);
+
+create table exercise_translations (
+  id uuid primary key default gen_random_uuid(),
+  exercise_id uuid not null references exercises (id) on delete cascade,
+  language_code text not null,
+  name text not null,
+  description text,
+  video_url text,
+  unique (exercise_id, language_code)
+);
+
+-- Per-language workout titles, mirroring exercise_translations. workouts.title
+-- stays as the fallback shown when a language has no translation yet (e.g.
+-- workouts created before this table existed).
+create table workout_translations (
+  id uuid primary key default gen_random_uuid(),
+  workout_id uuid not null references workouts (id) on delete cascade,
+  language_code text not null,
+  title text not null,
+  unique (workout_id, language_code)
 );
 
 create table workout_exercises (
   id uuid primary key default gen_random_uuid(),
   workout_id uuid not null references workouts (id) on delete cascade,
+  -- References the library for a reusable exercise (name/video resolved via
+  -- exercise_translations for the viewer's language). Left null for a
+  -- one-off custom exercise, in which case `name`/`video_url` below apply.
+  exercise_id uuid references exercises (id) on delete set null,
   order_index int not null default 0,
-  name text not null,
+  name text,
   sets int not null default 0,
   reps text not null default '',
   rest_seconds int,
@@ -40,6 +119,19 @@ create table workout_logs (
   client_id uuid not null references profiles (id) on delete cascade,
   completed_at timestamptz not null default now(),
   notes text
+);
+
+-- Shared food/ingredient library (per-100g macros), same pattern as the
+-- exercise library — lets the nutrition builder auto-calculate a meal item's
+-- macros from an entered gram amount instead of the trainer looking them up.
+create table foods (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  kcal_100g numeric not null default 0,
+  protein_100g numeric not null default 0,
+  carbs_100g numeric not null default 0,
+  fat_100g numeric not null default 0,
+  created_at timestamptz not null default now()
 );
 
 create table nutrition_plans (
@@ -64,12 +156,50 @@ create table meals (
 create table meal_items (
   id uuid primary key default gen_random_uuid(),
   meal_id uuid not null references meals (id) on delete cascade,
+  -- References the food library when the trainer picked one (so the item
+  -- can be re-scaled later); left null for a freeform/manual item.
+  food_id uuid references foods (id) on delete set null,
   name text not null,
   amount text,
   kcal numeric not null default 0,
   protein numeric not null default 0,
   carbs numeric not null default 0,
   fat numeric not null default 0
+);
+
+create table weight_logs (
+  id uuid primary key default gen_random_uuid(),
+  client_id uuid not null references profiles (id) on delete cascade,
+  date date not null default current_date,
+  weight_kg numeric not null,
+  unique (client_id, date)
+);
+
+create table step_logs (
+  id uuid primary key default gen_random_uuid(),
+  client_id uuid not null references profiles (id) on delete cascade,
+  date date not null default current_date,
+  steps int not null default 0,
+  unique (client_id, date)
+);
+
+create table blood_pressure_logs (
+  id uuid primary key default gen_random_uuid(),
+  client_id uuid not null references profiles (id) on delete cascade,
+  date date not null default current_date,
+  systolic int not null,
+  diastolic int not null,
+  pulse int,
+  unique (client_id, date)
+);
+
+create table water_intake (
+  id uuid primary key default gen_random_uuid(),
+  client_id uuid not null references profiles (id) on delete cascade,
+  date date not null default current_date,
+  liters numeric not null default 0,
+  goal_liters numeric not null default 3,
+  unique (client_id, date)
 );
 
 create table check_ins (
@@ -107,7 +237,42 @@ as $$
   );
 $$;
 
+-- Helper: is the current user a trainer at all? (for shared resources like
+-- the exercise library, which isn't scoped to one specific client)
+create or replace function is_trainer()
+returns boolean
+language sql
+security definer
+stable
+as $$
+  select exists (
+    select 1 from profiles
+    where id = auth.uid()
+      and role = 'trainer'
+  );
+$$;
+
+-- Helper: does a signed-up account already exist for this email? Used by
+-- the send-client-invite edge function to decide between a "sign up" email
+-- and a "you've been added, just log in" email. security definer because
+-- auth.users isn't otherwise readable via the public API.
+create or replace function user_exists_with_email(check_email text)
+returns boolean
+language sql
+security definer
+stable
+as $$
+  select exists (
+    select 1 from auth.users
+    where email = check_email
+  );
+$$;
+
+grant execute on function user_exists_with_email(text) to authenticated, service_role;
+
 alter table profiles enable row level security;
+alter table exercises enable row level security;
+alter table exercise_translations enable row level security;
 alter table workouts enable row level security;
 alter table workout_exercises enable row level security;
 alter table workout_logs enable row level security;
@@ -116,6 +281,11 @@ alter table meals enable row level security;
 alter table meal_items enable row level security;
 alter table check_ins enable row level security;
 alter table check_in_photos enable row level security;
+alter table weight_logs enable row level security;
+alter table step_logs enable row level security;
+alter table blood_pressure_logs enable row level security;
+alter table water_intake enable row level security;
+alter table client_intake enable row level security;
 
 -- profiles: a user can read/update their own profile; a trainer can read their clients' profiles
 create policy "profiles_select_own_or_trainer" on profiles
@@ -126,6 +296,43 @@ create policy "profiles_insert_own" on profiles
 
 create policy "profiles_update_own" on profiles
   for update using (id = auth.uid());
+
+-- client_intake: a trainer manages their own roster entries; a newly
+-- signed-up user can see/claim the one entry addressed to their own email.
+create policy "client_intake_trainer_all" on client_intake
+  for all using (trainer_id = auth.uid())
+  with check (trainer_id = auth.uid());
+
+create policy "client_intake_select_own_email" on client_intake
+  for select using (email = (auth.jwt() ->> 'email'));
+
+create policy "client_intake_claim_own_email" on client_intake
+  for update using (email = (auth.jwt() ->> 'email') and claimed_by is null)
+  with check (claimed_by = auth.uid());
+
+-- exercise library: readable by every signed-in user (clients & trainers);
+-- writable by any trainer (shared library, not scoped to one trainer).
+create policy "exercises_select_all" on exercises
+  for select using (true);
+
+create policy "exercises_write_trainer" on exercises
+  for all using (is_trainer())
+  with check (is_trainer());
+
+create policy "exercise_translations_select_all" on exercise_translations
+  for select using (true);
+
+create policy "exercise_translations_write_trainer" on exercise_translations
+  for all using (is_trainer())
+  with check (is_trainer());
+
+-- food library: same shared-read / trainer-write pattern as exercises.
+create policy "foods_select_all" on foods
+  for select using (true);
+
+create policy "foods_write_trainer" on foods
+  for all using (is_trainer())
+  with check (is_trainer());
 
 -- workouts
 create policy "workouts_select" on workouts
@@ -139,6 +346,32 @@ create policy "workouts_update_trainer" on workouts
 
 create policy "workouts_delete_trainer" on workouts
   for delete using (trainer_id = auth.uid());
+
+-- workout_translations (access follows the parent workout)
+create policy "workout_translations_select" on workout_translations
+  for select using (
+    exists (
+      select 1 from workouts w
+      where w.id = workout_translations.workout_id
+        and (w.client_id = auth.uid() or w.trainer_id = auth.uid())
+    )
+  );
+
+create policy "workout_translations_write_trainer" on workout_translations
+  for all using (
+    exists (
+      select 1 from workouts w
+      where w.id = workout_translations.workout_id
+        and w.trainer_id = auth.uid()
+    )
+  )
+  with check (
+    exists (
+      select 1 from workouts w
+      where w.id = workout_translations.workout_id
+        and w.trainer_id = auth.uid()
+    )
+  );
 
 -- workout_exercises (access follows the parent workout)
 create policy "workout_exercises_select" on workout_exercises
@@ -217,6 +450,38 @@ create policy "meal_items_write_trainer" on meal_items
     )
   );
 
+-- weight_logs
+create policy "weight_logs_select" on weight_logs
+  for select using (client_id = auth.uid() or is_trainer_of(client_id));
+
+create policy "weight_logs_write_client" on weight_logs
+  for all using (client_id = auth.uid())
+  with check (client_id = auth.uid());
+
+-- step_logs
+create policy "step_logs_select" on step_logs
+  for select using (client_id = auth.uid() or is_trainer_of(client_id));
+
+create policy "step_logs_write_client" on step_logs
+  for all using (client_id = auth.uid())
+  with check (client_id = auth.uid());
+
+-- blood_pressure_logs
+create policy "blood_pressure_logs_select" on blood_pressure_logs
+  for select using (client_id = auth.uid() or is_trainer_of(client_id));
+
+create policy "blood_pressure_logs_write_client" on blood_pressure_logs
+  for all using (client_id = auth.uid())
+  with check (client_id = auth.uid());
+
+-- water_intake
+create policy "water_intake_select" on water_intake
+  for select using (client_id = auth.uid() or is_trainer_of(client_id));
+
+create policy "water_intake_write_client" on water_intake
+  for all using (client_id = auth.uid())
+  with check (client_id = auth.uid());
+
 -- check_ins
 create policy "check_ins_select" on check_ins
   for select using (client_id = auth.uid() or is_trainer_of(client_id));
@@ -247,6 +512,8 @@ create policy "check_in_photos_insert_client" on check_in_photos
 -- but the `authenticated` role also needs baseline table privileges.
 grant usage on schema public to authenticated;
 grant select, insert, update, delete on
-  profiles, workouts, workout_exercises, workout_logs,
-  nutrition_plans, meals, meal_items, check_ins, check_in_photos
+  profiles, workouts, workout_translations, workout_exercises, workout_logs,
+  nutrition_plans, meals, meal_items, check_ins, check_in_photos, water_intake,
+  weight_logs, step_logs, blood_pressure_logs, client_intake
 to authenticated;
+grant select, insert, update, delete on exercises, exercise_translations, foods to authenticated;

@@ -1,15 +1,20 @@
 import { useCallback, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, RefreshControl, ScrollView, Text, View } from 'react-native'
 
 import { Card } from '@/components/ui/card'
 import { Eyebrow, Heading } from '@/components/ui/heading'
+import { MacroRings } from '@/components/ui/macro-rings'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth-store'
 import type { Meal, MealItem, NutritionPlan } from '@/types/database'
 
+const MACRO_COLORS = { kcal: '#4A90E2', protein: '#4CD97B', carbs: '#F5A623', fat: '#E91E8C' }
+
 type MealWithItems = Meal & { meal_items: MealItem[] }
 
 export default function NutritionScreen() {
+  const { t } = useTranslation()
   const profile = useAuthStore(state => state.profile)
   const [plan, setPlan] = useState<NutritionPlan | null>(null)
   const [meals, setMeals] = useState<MealWithItems[]>([])
@@ -69,18 +74,33 @@ export default function NutritionScreen() {
       {isLoading ? (
         <ActivityIndicator color="#D2A85E" />
       ) : !plan ? (
-        <Text className="text-muted">Zatím nemáš přiřazený jídelníček</Text>
+        <Text className="text-muted">{t('nutrition.empty')}</Text>
       ) : (
         <>
-          <Heading className="mb-1">{plan.title}</Heading>
-          <Text className="mb-6 mt-2 font-display-medium text-sm text-gold">
-            {totals.kcal.toFixed(0)}/{plan.target_kcal} kcal
-          </Text>
+          <Heading className="mb-4">{plan.title}</Heading>
 
-          <Card className="mb-6 flex-row justify-between">
-            <Macro label="Protein" value={totals.protein} target={plan.target_protein} />
-            <Macro label="Carbs" value={totals.carbs} target={plan.target_carbs} />
-            <Macro label="Fat" value={totals.fat} target={plan.target_fat} />
+          <Card className="mb-6 flex-row items-center justify-between">
+            <View className="gap-3">
+              <MacroRow color={MACRO_COLORS.kcal} label={t('nutrition.kcal')} value={totals.kcal} target={plan.target_kcal} unit="kcal" />
+              <MacroRow
+                color={MACRO_COLORS.protein}
+                label={t('nutrition.protein')}
+                value={totals.protein}
+                target={plan.target_protein}
+                unit="g"
+              />
+              <MacroRow color={MACRO_COLORS.carbs} label={t('nutrition.carbs')} value={totals.carbs} target={plan.target_carbs} unit="g" />
+              <MacroRow color={MACRO_COLORS.fat} label={t('nutrition.fat')} value={totals.fat} target={plan.target_fat} unit="g" />
+            </View>
+
+            <MacroRings
+              rings={[
+                { value: totals.kcal, target: plan.target_kcal, color: MACRO_COLORS.kcal },
+                { value: totals.protein, target: plan.target_protein, color: MACRO_COLORS.protein },
+                { value: totals.carbs, target: plan.target_carbs, color: MACRO_COLORS.carbs },
+                { value: totals.fat, target: plan.target_fat, color: MACRO_COLORS.fat },
+              ]}
+            />
           </Card>
 
           {meals.map(meal => (
@@ -108,13 +128,29 @@ export default function NutritionScreen() {
   )
 }
 
-function Macro({ label, value, target }: { label: string; value: number; target: number }) {
+function MacroRow({
+  color,
+  label,
+  value,
+  target,
+  unit,
+}: {
+  color: string
+  label: string
+  value: number
+  target: number
+  unit: string
+}) {
   return (
-    <View className="items-center">
-      <Text className="font-display text-base text-gold">
-        {value.toFixed(0)}/{target}g
+    <View>
+      <View className="flex-row items-center gap-1.5">
+        <Text className="text-xs text-muted">{label}</Text>
+      </View>
+      <Text className="font-display-medium text-sm text-ivory">
+        {value.toFixed(0)}/{target}
+        {unit}
       </Text>
-      <Text className="mt-1 font-display-medium text-[10px] uppercase tracking-[1px] text-muted">{label}</Text>
+      <View className="mt-1 h-[3px] w-14 rounded-full" style={{ backgroundColor: color }} />
     </View>
   )
 }

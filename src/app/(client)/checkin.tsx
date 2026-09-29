@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Alert, Pressable, ScrollView, Text, TextInput, View } from 'react-native'
 
 import { Button } from '@/components/ui/button'
@@ -8,6 +9,7 @@ import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth-store'
 
 export default function CheckInScreen() {
+  const { t } = useTranslation()
   const profile = useAuthStore(state => state.profile)
   const [weight, setWeight] = useState('')
   const [sleepHours, setSleepHours] = useState('')
@@ -35,11 +37,11 @@ export default function CheckInScreen() {
     setIsSubmitting(false)
 
     if (error) {
-      Alert.alert('Chyba', 'Check-in se nepodařilo odeslat')
+      Alert.alert(t('checkin.submitErrorTitle'), t('checkin.submitError'))
       return
     }
 
-    Alert.alert('Odesláno', 'Check-in byl úspěšně odeslán')
+    Alert.alert(t('checkin.submitSuccessTitle'), t('checkin.submitSuccess'))
     setWeight('')
     setSleepHours('')
     setWaterLiters('')
@@ -51,18 +53,28 @@ export default function CheckInScreen() {
   return (
     <ScrollView className="flex-1 bg-coal" contentContainerClassName="px-5 pb-16 pt-16">
       <Heading underline className="mb-8">
-        Check-in
+        {t('checkin.title')}
       </Heading>
 
-      <TextField label="Aktuální tělesná hmotnost (kg)" value={weight} onChangeText={setWeight} keyboardType="decimal-pad" />
-      <TextField label="Kolik hodin jsi v průměru spal/a?" value={sleepHours} onChangeText={setSleepHours} keyboardType="decimal-pad" />
-      <TextField label="Kolik litrů vody jsi denně vypil/a?" value={waterLiters} onChangeText={setWaterLiters} keyboardType="decimal-pad" />
+      <TextField label={t('checkin.weightLabel')} value={weight} onChangeText={setWeight} keyboardType="decimal-pad" />
+      <TextField
+        label={t('checkin.sleepLabel')}
+        value={sleepHours}
+        onChangeText={setSleepHours}
+        keyboardType="decimal-pad"
+      />
+      <TextField
+        label={t('checkin.waterLabel')}
+        value={waterLiters}
+        onChangeText={setWaterLiters}
+        keyboardType="decimal-pad"
+      />
 
-      <RatingField label="Jak hodnotíš svůj výkon v tréninku (1–10)?" value={trainingRating} onChange={setTrainingRating} />
-      <RatingField label="Jak ses cítil/a z hlediska regenerace (1–10)?" value={recoveryRating} onChange={setRecoveryRating} />
+      <RatingField label={t('checkin.trainingRatingLabel')} value={trainingRating} onChange={setTrainingRating} />
+      <RatingField label={t('checkin.recoveryRatingLabel')} value={recoveryRating} onChange={setRecoveryRating} />
 
       <Text className="mb-1.5 font-sans-medium text-xs uppercase tracking-[1px] text-muted">
-        Jak ses cítil/a tento týden celkově?
+        {t('checkin.notesLabel')}
       </Text>
       <TextInput
         value={notes}
@@ -73,7 +85,7 @@ export default function CheckInScreen() {
         className="mb-6 h-28 rounded-md border border-border bg-graph px-4 py-3 text-base text-ivory"
       />
 
-      <Button label="Submit" onPress={handleSubmit} isLoading={isSubmitting} />
+      <Button label={t('checkin.submit')} onPress={handleSubmit} isLoading={isSubmitting} />
     </ScrollView>
   )
 }
@@ -95,7 +107,8 @@ function RatingField({
           <Pressable
             key={n}
             onPress={() => onChange(n)}
-            className={`h-9 w-9 items-center justify-center rounded-full border ${
+            hitSlop={4}
+            className={`h-9 w-9 items-center justify-center rounded-full border active:opacity-70 ${
               value === n ? 'border-gold bg-gold' : 'border-border bg-graph'
             }`}
           >

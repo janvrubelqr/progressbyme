@@ -1,4 +1,5 @@
 import { Stack } from 'expo-router'
+import { useTranslation } from 'react-i18next'
 
 const headerOptions = {
   headerStyle: { backgroundColor: '#0A0A0B' },
@@ -8,13 +9,21 @@ const headerOptions = {
 }
 
 export default function TrainerStackLayout() {
+  const { t } = useTranslation()
+
   return (
     <Stack screenOptions={headerOptions}>
-      <Stack.Screen name="clients/index" options={{ title: 'Klienti', headerShown: false }} />
-      <Stack.Screen name="clients/[id]/index" options={{ title: 'Klient' }} />
-      <Stack.Screen name="clients/[id]/workout-builder" options={{ title: 'Nový trénink' }} />
-      <Stack.Screen name="clients/[id]/nutrition-builder" options={{ title: 'Nový jídelníček' }} />
-      <Stack.Screen name="clients/[id]/checkins" options={{ title: 'Check-iny' }} />
+      <Stack.Screen name="clients/index" options={{ title: t('trainer.clientsTitle'), headerShown: false }} />
+      <Stack.Screen name="clients/new" options={{ title: t('trainer.addClient.title') }} />
+      <Stack.Screen name="clients/[id]/index" options={{ title: t('trainer.clientDetailTitle') }} />
+      <Stack.Screen name="clients/[id]/workout-builder" options={{ title: t('trainer.workoutBuilder.title') }} />
+      <Stack.Screen name="clients/[id]/nutrition-builder" options={{ title: t('trainer.nutritionBuilder.title') }} />
+      <Stack.Screen name="clients/[id]/checkins" options={{ title: t('trainer.checkinsTitle') }} />
+      <Stack.Screen name="exercises/index" options={{ title: t('trainer.exerciseLibrary.title') }} />
+      <Stack.Screen
+        name="exercises/[id]"
+        options={{ title: t('trainer.exerciseLibrary.newTitle') }}
+      />
     </Stack>
   )
 }

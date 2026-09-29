@@ -12,9 +12,9 @@ export function Button({ label, variant = 'primary', isLoading, disabled, classN
   return (
     <Pressable
       disabled={disabled || isLoading}
-      className={`items-center rounded py-4 ${isGhost ? 'border border-gold bg-transparent' : 'bg-gold'} ${
-        disabled || isLoading ? 'opacity-60' : ''
-      } ${className ?? ''}`}
+      className={`min-h-12 items-center justify-center rounded py-4 active:opacity-70 ${
+        isGhost ? 'border border-gold bg-transparent' : 'bg-gold'
+      } ${disabled || isLoading ? 'opacity-60' : ''} ${className ?? ''}`}
       {...props}
     >
       {isLoading ? (

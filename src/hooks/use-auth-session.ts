@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth-store'
-import type { Profile } from '@/types/database'
+import type { ClientIntake, Profile } from '@/types/database'
 
 async function fetchOrCreateProfile(user: User): Promise<Profile | null> {
   const { data, error } = await supabase.from('profiles').select('*').eq('id', user.id).maybeSingle()
@@ -30,11 +30,67 @@ async function fetchOrCreateProfile(user: User): Promise<Profile | null> {
     .single()
 
   if (createError) {
+    // getSession() and onAuthStateChange both call this on mount, so two
+    // concurrent inserts for the same brand-new user are expected — the
+    // loser just re-fetches the row the winner created instead of erroring.
+    if (createError.code === '23505') {
+      const { data: existing } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+      return (existing as Profile) ?? null
+    }
+
     console.error('Chyba při vytváření profilu', createError)
     return null
   }
 
   return created as Profile
+}
+
+// If a trainer added this person as a prospective client before they signed
+// up (client_intake, matched by email), link them to that trainer now and
+// copy over the starting info the trainer already entered.
+async function tryClaimIntake(user: User, profile: Profile): Promise<Profile> {
+  if (profile.trainer_id || !user.email) return profile
+
+  const { data: intake } = await supabase
+    .from('client_intake')
+    .select('*')
+    .eq('email', user.email)
+    .is('claimed_by', null)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  if (!intake) return profile
+
+  const row = intake as ClientIntake
+
+  const profilePatch: Partial<Profile> = { trainer_id: row.trainer_id }
+  if (!profile.sex && row.sex) profilePatch.sex = row.sex
+  if (!profile.height_cm && row.height_cm) profilePatch.height_cm = row.height_cm
+  if (!profile.fitness_goal && row.fitness_goal) profilePatch.fitness_goal = row.fitness_goal
+  if (!profile.phone && row.phone) profilePatch.phone = row.phone
+
+  const { data: updatedProfile } = await supabase
+    .from('profiles')
+    .update(profilePatch)
+    .eq('id', user.id)
+    .select('*')
+    .single()
+
+  // Claim guard: the RLS policy only allows this update while claimed_by is
+  // still null, so a duplicate/racing call here is a harmless no-op.
+  await supabase.from('client_intake').update({ claimed_by: user.id, claimed_at: new Date().toISOString() }).eq('id', row.id)
+
+  if (row.weight_kg) {
+    await supabase
+      .from('weight_logs')
+      .upsert(
+        { client_id: user.id, date: new Date().toISOString().slice(0, 10), weight_kg: row.weight_kg },
+        { onConflict: 'client_id,date' }
+      )
+  }
+
+  return (updatedProfile as Profile) ?? profile
 }
 
 // Dev-only convenience: if EXPO_PUBLIC_DEV_AUTO_LOGIN_EMAIL/PASSWORD are set in .env.local,
@@ -71,7 +127,8 @@ export function useAuthSession() {
 
       setSession(session)
       if (session?.user) {
-        setProfile(await fetchOrCreateProfile(session.user))
+        const profile = await fetchOrCreateProfile(session.user)
+        setProfile(profile ? await tryClaimIntake(session.user, profile) : profile)
       }
       setIsInitializing(false)
     })
@@ -80,7 +137,8 @@ export function useAuthSession() {
       if (!isMounted) return
       setSession(session)
       if (session?.user) {
-        setProfile(await fetchOrCreateProfile(session.user))
+        const profile = await fetchOrCreateProfile(session.user)
+        setProfile(profile ? await tryClaimIntake(session.user, profile) : profile)
       } else {
         setProfile(null)
       }

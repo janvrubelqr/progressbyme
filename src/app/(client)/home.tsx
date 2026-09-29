@@ -1,16 +1,31 @@
 import { Link } from 'expo-router'
 import { useCallback, useEffect, useState } from 'react'
-import { ActivityIndicator, RefreshControl, ScrollView, Text, View } from 'react-native'
+import { useTranslation } from 'react-i18next'
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native'
 
+import { BloodPressureTracker } from '@/components/ui/blood-pressure-tracker'
 import { Card } from '@/components/ui/card'
 import { Eyebrow } from '@/components/ui/heading'
+import { RoleSwitch } from '@/components/ui/role-switch'
+import { StepsTracker } from '@/components/ui/steps-tracker'
+import { WaterTracker } from '@/components/ui/water-tracker'
+import { WeightTracker } from '@/components/ui/weight-tracker'
+import { useAuth } from '@/hooks/use-auth'
+import { toDateLocale } from '@/lib/date-locale'
+import { pickTranslation } from '@/lib/pick-translation'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth-store'
+import { useLanguageStore } from '@/stores/language-store'
 import type { Workout } from '@/types/database'
 
+type WorkoutRow = Workout & { displayTitle: string }
+
 export default function HomeScreen() {
+  const { t } = useTranslation()
+  const language = useLanguageStore(state => state.language)
   const profile = useAuthStore(state => state.profile)
-  const [nextWorkout, setNextWorkout] = useState<Workout | null>(null)
+  const { handleSignOut } = useAuth()
+  const [nextWorkout, setNextWorkout] = useState<WorkoutRow | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   const loadData = useCallback(async () => {
@@ -20,16 +35,21 @@ export default function HomeScreen() {
     const today = new Date().toISOString().slice(0, 10)
     const { data } = await supabase
       .from('workouts')
-      .select('*')
+      .select('*, workout_translations(language_code, title)')
       .eq('client_id', profile.id)
       .gte('scheduled_date', today)
       .order('scheduled_date', { ascending: true })
       .limit(1)
       .maybeSingle()
 
-    setNextWorkout(data)
+    if (data) {
+      const translations = (data.workout_translations ?? []) as { language_code: string; title: string }[]
+      setNextWorkout({ ...data, displayTitle: pickTranslation(translations, language)?.title ?? data.title })
+    } else {
+      setNextWorkout(null)
+    }
     setIsLoading(false)
-  }, [profile])
+  }, [profile, language])
 
   useEffect(() => {
     loadData()
@@ -41,44 +61,75 @@ export default function HomeScreen() {
       contentContainerClassName="px-5 pb-10"
       refreshControl={<RefreshControl refreshing={isLoading} onRefresh={loadData} tintColor="#D2A85E" />}
     >
-      <View className="pb-2 pt-16">
-        <Eyebrow>Ahoj</Eyebrow>
-        <Text className="mt-1 font-display-bold text-2xl uppercase tracking-[1px] text-ivory">
-          {profile?.full_name ?? 'sportovče'}
-        </Text>
+      <View className="flex-row items-start justify-between pb-2 pt-16">
+        <Link href="/(client)/profile" asChild>
+          <Pressable hitSlop={6} className="active:opacity-60">
+            <Eyebrow>{t('home.greeting')}</Eyebrow>
+            <Text className="mt-1 font-display-bold text-2xl uppercase tracking-[1px] text-ivory">
+              {profile?.full_name ?? t('home.namePlaceholder')}
+            </Text>
+          </Pressable>
+        </Link>
+        <View className="items-end gap-2">
+          <RoleSwitch />
+          <Pressable onPress={handleSignOut} hitSlop={8} className="active:opacity-60">
+            <Text className="font-sans-medium text-xs text-muted">{t('trainer.signOut')}</Text>
+          </Pressable>
+        </View>
       </View>
 
-      <Eyebrow className="mb-3 mt-8">Tvůj další trénink</Eyebrow>
+      <Eyebrow className="mb-3 mt-8">{t('home.nextWorkout')}</Eyebrow>
       {isLoading ? (
         <ActivityIndicator color="#D2A85E" className="mt-4" />
       ) : nextWorkout ? (
         <Link href={{ pathname: '/(client)/workout/[id]', params: { id: nextWorkout.id } }} asChild>
           <Card>
             <Text className="font-display-medium text-xs uppercase tracking-[2px] text-muted">
-              {nextWorkout.scheduled_date ? new Date(nextWorkout.scheduled_date).toLocaleDateString('cs-CZ') : ''}
+              {nextWorkout.scheduled_date
+                ? new Date(nextWorkout.scheduled_date).toLocaleDateString(toDateLocale(language))
+                : ''}
             </Text>
-            <Text className="mt-2 font-display text-lg text-ivory">{nextWorkout.title}</Text>
+            <Text className="mt-2 font-display text-lg text-ivory">{nextWorkout.displayTitle}</Text>
           </Card>
         </Link>
       ) : (
         <Card>
-          <Text className="text-muted">Zatím nemáš naplánovaný trénink</Text>
+          <Text className="text-muted">{t('home.noWorkout')}</Text>
         </Card>
       )}
 
       <View className="mt-6 flex-row gap-3">
         <Link href="/(client)/nutrition" asChild>
           <Card className="flex-1">
-            <Text className="font-display text-base text-ivory">Jídelníček</Text>
-            <Text className="mt-1 text-sm text-muted">Dnešní makra</Text>
+            <Text className="font-display text-base text-ivory">{t('home.nutritionCardTitle')}</Text>
+            <Text className="mt-1 text-sm text-muted">{t('home.nutritionCardSubtitle')}</Text>
           </Card>
         </Link>
         <Link href="/(client)/checkin" asChild>
           <Card className="flex-1">
-            <Text className="font-display text-base text-ivory">Check-in</Text>
-            <Text className="mt-1 text-sm text-muted">Odeslat týdenní</Text>
+            <Text className="font-display text-base text-ivory">{t('home.checkinCardTitle')}</Text>
+            <Text className="mt-1 text-sm text-muted">{t('home.checkinCardSubtitle')}</Text>
           </Card>
         </Link>
+      </View>
+
+      <Eyebrow className="mb-3 mt-8">{t('home.progress')}</Eyebrow>
+      <View className="flex-row gap-3">
+        <Card className="flex-1">
+          <WeightTracker />
+        </Card>
+        <Card className="flex-1">
+          <StepsTracker />
+        </Card>
+      </View>
+
+      <View className="mt-3 flex-row gap-3">
+        <Card className="flex-1">
+          <WaterTracker />
+        </Card>
+        <Card className="flex-1">
+          <BloodPressureTracker />
+        </Card>
       </View>
     </ScrollView>
   )
