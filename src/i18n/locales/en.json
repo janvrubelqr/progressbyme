@@ -204,6 +204,10 @@
     "submitSuccess": "Check-in submitted successfully"
   },
   "trainer": {
+    "tabs": {
+      "clients": "Clients",
+      "exercises": "Exercises"
+    },
     "clientsTitle": "Clients",
     "signOut": "Sign out",
     "clientsEmpty": "No clients yet",

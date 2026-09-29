@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons'
-import { Link, useRouter } from 'expo-router'
+import { Link } from 'expo-router'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, FlatList, Image, Pressable, Text, View } from 'react-native'
@@ -15,7 +15,6 @@ type ExerciseRow = { id: string; slug: string; name: string | null; videoUrl: st
 
 export default function ExerciseLibraryScreen() {
   const { t } = useTranslation()
-  const router = useRouter()
   const language = useLanguageStore(state => state.language)
   const [exercises, setExercises] = useState<ExerciseRow[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -36,14 +35,6 @@ export default function ExerciseLibraryScreen() {
     setIsLoading(false)
   }, [language])
 
-  const handleBack = () => {
-    if (router.canGoBack()) {
-      router.back()
-    } else {
-      router.replace('/(trainer)/clients')
-    }
-  }
-
   useEffect(() => {
     load()
   }, [load])
@@ -59,15 +50,11 @@ export default function ExerciseLibraryScreen() {
   return (
     <FlatList
       className="flex-1 bg-coal"
-      contentContainerClassName="px-5 py-6"
+      contentContainerClassName="px-5 pb-6 pt-16"
       data={exercises}
       keyExtractor={item => item.id}
       ListHeaderComponent={
         <View className="mb-6">
-          <Pressable onPress={handleBack} hitSlop={12} className="mb-4 flex-row items-center gap-1.5 self-start active:opacity-60">
-            <Ionicons name="chevron-back" size={16} color="#D2A85E" />
-            <Text className="font-sans-medium text-sm text-gold">{t('trainer.exerciseLibrary.backToClients')}</Text>
-          </Pressable>
           <View className="flex-row items-center justify-between">
             <Heading>{t('trainer.exerciseLibrary.title')}</Heading>
             <Link href="/(trainer)/exercises/new" asChild>

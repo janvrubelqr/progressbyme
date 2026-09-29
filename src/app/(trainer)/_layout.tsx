@@ -1,29 +1,42 @@
-import { Stack } from 'expo-router'
+import { Ionicons } from '@expo/vector-icons'
+import { Tabs } from 'expo-router'
 import { useTranslation } from 'react-i18next'
 
-const headerOptions = {
-  headerStyle: { backgroundColor: '#0A0A0B' },
-  headerTintColor: '#D2A85E',
-  headerTitleStyle: { fontFamily: 'Oswald_600SemiBold', color: '#F2E7CF' },
-  headerShadowVisible: false,
-}
-
-export default function TrainerStackLayout() {
+export default function TrainerTabsLayout() {
   const { t } = useTranslation()
 
   return (
-    <Stack screenOptions={headerOptions}>
-      <Stack.Screen name="clients/index" options={{ title: t('trainer.clientsTitle'), headerShown: false }} />
-      <Stack.Screen name="clients/new" options={{ title: t('trainer.addClient.title') }} />
-      <Stack.Screen name="clients/[id]/index" options={{ title: t('trainer.clientDetailTitle') }} />
-      <Stack.Screen name="clients/[id]/workout-builder" options={{ title: t('trainer.workoutBuilder.title') }} />
-      <Stack.Screen name="clients/[id]/nutrition-builder" options={{ title: t('trainer.nutritionBuilder.title') }} />
-      <Stack.Screen name="clients/[id]/checkins" options={{ title: t('trainer.checkinsTitle') }} />
-      <Stack.Screen name="exercises/index" options={{ title: t('trainer.exerciseLibrary.title') }} />
-      <Stack.Screen
-        name="exercises/[id]"
-        options={{ title: t('trainer.exerciseLibrary.newTitle') }}
+    <Tabs
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: '#D2A85E',
+        tabBarInactiveTintColor: '#6B6459',
+        tabBarStyle: {
+          backgroundColor: '#0A0A0B',
+          borderTopColor: '#1B1B1D',
+        },
+        tabBarLabelStyle: {
+          fontFamily: 'Oswald_500Medium',
+          fontSize: 10,
+          letterSpacing: 0.4,
+          textTransform: 'uppercase',
+        },
+      }}
+    >
+      <Tabs.Screen
+        name="clients"
+        options={{
+          title: t('trainer.tabs.clients'),
+          tabBarIcon: ({ color, size }) => <Ionicons name="people-outline" size={size} color={color} />,
+        }}
       />
-    </Stack>
+      <Tabs.Screen
+        name="exercises"
+        options={{
+          title: t('trainer.tabs.exercises'),
+          tabBarIcon: ({ color, size }) => <Ionicons name="barbell-outline" size={size} color={color} />,
+        }}
+      />
+    </Tabs>
   )
 }

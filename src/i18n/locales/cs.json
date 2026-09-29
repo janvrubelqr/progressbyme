@@ -204,6 +204,10 @@
     "submitSuccess": "Check-in byl úspěšně odeslán"
   },
   "trainer": {
+    "tabs": {
+      "clients": "Klienti",
+      "exercises": "Cviky"
+    },
     "clientsTitle": "Klienti",
     "signOut": "Odhlásit",
     "clientsEmpty": "Zatím žádní klienti",
