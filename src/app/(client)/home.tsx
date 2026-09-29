@@ -7,6 +7,7 @@ import { BloodPressureTracker } from '@/components/ui/blood-pressure-tracker'
 import { Card } from '@/components/ui/card'
 import { Eyebrow } from '@/components/ui/heading'
 import { RoleSwitch } from '@/components/ui/role-switch'
+import { SignOutButton } from '@/components/ui/sign-out-button'
 import { StepsTracker } from '@/components/ui/steps-tracker'
 import { WaterTracker } from '@/components/ui/water-tracker'
 import { WeightTracker } from '@/components/ui/weight-tracker'
@@ -72,9 +73,7 @@ export default function HomeScreen() {
         </Link>
         <View className="items-end gap-2">
           <RoleSwitch />
-          <Pressable onPress={handleSignOut} hitSlop={8} className="active:opacity-60">
-            <Text className="font-sans-medium text-xs text-muted">{t('trainer.signOut')}</Text>
-          </Pressable>
+          <SignOutButton onPress={handleSignOut} />
         </View>
       </View>
 

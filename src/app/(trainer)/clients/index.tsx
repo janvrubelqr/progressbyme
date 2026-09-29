@@ -6,6 +6,7 @@ import { ActivityIndicator, FlatList, Pressable, Text, View } from 'react-native
 import { Card } from '@/components/ui/card'
 import { Heading } from '@/components/ui/heading'
 import { RoleSwitch } from '@/components/ui/role-switch'
+import { SignOutButton } from '@/components/ui/sign-out-button'
 import { useAuth } from '@/hooks/use-auth'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth-store'
@@ -74,9 +75,7 @@ export default function ClientsListScreen() {
                 <Text className="font-sans-medium text-xs text-muted">{t('trainer.exerciseLibrary.manageLink')}</Text>
               </Pressable>
             </Link>
-            <Pressable onPress={handleSignOut} hitSlop={8} className="active:opacity-60">
-              <Text className="font-sans-medium text-sm text-gold">{t('trainer.signOut')}</Text>
-            </Pressable>
+            <SignOutButton onPress={handleSignOut} />
           </View>
         </View>
       }
