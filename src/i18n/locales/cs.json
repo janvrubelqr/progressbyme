@@ -48,7 +48,9 @@
   },
   "roleSwitch": {
     "toTrainer": "Přepnout na trenéra",
-    "toClient": "Přepnout na klienta"
+    "toClient": "Přepnout na klienta",
+    "client": "Klient",
+    "trainer": "Trenér"
   },
   "glossary": {
     "systolic": "Horní (systolický) tlak — tlak v tepnách při stahu srdce. Normální hodnota je zhruba 90–120.",

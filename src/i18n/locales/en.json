@@ -48,7 +48,9 @@
   },
   "roleSwitch": {
     "toTrainer": "Switch to trainer",
-    "toClient": "Switch to client"
+    "toClient": "Switch to client",
+    "client": "Client",
+    "trainer": "Trainer"
   },
   "glossary": {
     "systolic": "Systolic (upper) pressure — the pressure in your arteries when your heart beats. Normal is roughly 90–120.",
