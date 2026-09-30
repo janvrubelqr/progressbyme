@@ -15,7 +15,10 @@ export default function ProfileScreen() {
   const { t } = useTranslation()
   const profile = useAuthStore(state => state.profile)
   const setProfile = useAuthStore(state => state.setProfile)
+  const email = useAuthStore(state => state.user)?.email
 
+  const [fullName, setFullName] = useState('')
+  const [phone, setPhone] = useState('')
   const [dateOfBirth, setDateOfBirth] = useState('')
   const [sex, setSex] = useState<Sex | null>(null)
   const [heightCm, setHeightCm] = useState('')
@@ -28,6 +31,8 @@ export default function ProfileScreen() {
 
   useEffect(() => {
     if (!profile) return
+    setFullName(profile.full_name ?? '')
+    setPhone(profile.phone ?? '')
     setDateOfBirth(profile.date_of_birth ?? '')
     setSex(profile.sex)
     setHeightCm(profile.height_cm != null ? String(profile.height_cm) : '')
@@ -66,6 +71,8 @@ export default function ProfileScreen() {
     const { data, error } = await supabase
       .from('profiles')
       .update({
+        full_name: fullName || null,
+        phone: phone || null,
         date_of_birth: dateOfBirth || null,
         sex,
         height_cm: heightCm ? Number(heightCm) : null,
@@ -97,6 +104,30 @@ export default function ProfileScreen() {
           {t('profile.title')}
         </Heading>
         <Text className="mb-6 text-sm text-muted">{t('profile.subtitle')}</Text>
+
+        <Text className="mb-1.5 font-sans-medium text-xs uppercase tracking-[1px] text-muted">{t('profile.fullNameLabel')}</Text>
+        <TextInput
+          value={fullName}
+          onChangeText={setFullName}
+          placeholder={t('profile.fullNamePlaceholder')}
+          placeholderTextColor="#5A564C"
+          className="mb-4 rounded-md border border-border bg-graph px-4 py-3 text-base text-ivory"
+        />
+
+        <Text className="mb-1.5 font-sans-medium text-xs uppercase tracking-[1px] text-muted">{t('profile.emailLabel')}</Text>
+        <View className="mb-4 rounded-md border border-border-soft bg-coal px-4 py-3">
+          <Text className="text-base text-muted">{email ?? '—'}</Text>
+        </View>
+
+        <Text className="mb-1.5 font-sans-medium text-xs uppercase tracking-[1px] text-muted">{t('profile.phoneLabel')}</Text>
+        <TextInput
+          value={phone}
+          onChangeText={setPhone}
+          keyboardType="phone-pad"
+          placeholder={t('profile.phonePlaceholder')}
+          placeholderTextColor="#5A564C"
+          className="mb-4 rounded-md border border-border bg-graph px-4 py-3 text-base text-ivory"
+        />
 
         <Text className="mb-1.5 font-sans-medium text-xs uppercase tracking-[1px] text-muted">
           {t('profile.dateOfBirthLabel')}

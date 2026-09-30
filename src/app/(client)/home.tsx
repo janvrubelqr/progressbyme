@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons'
 import { Link } from 'expo-router'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -77,7 +78,17 @@ export default function HomeScreen() {
         </Link>
         <View className="items-end gap-2">
           <RoleSwitch />
-          <SignOutButton onPress={handleSignOut} />
+          <View className="flex-row items-center gap-2">
+            <Link href="/(client)/profile" asChild>
+              <Pressable
+                hitSlop={6}
+                className="h-9 w-9 items-center justify-center rounded-full border border-border active:opacity-60"
+              >
+                <Ionicons name="settings-outline" size={16} color="#948C7D" />
+              </Pressable>
+            </Link>
+            <SignOutButton onPress={handleSignOut} />
+          </View>
         </View>
       </View>
 

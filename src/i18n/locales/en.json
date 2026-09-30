@@ -102,7 +102,14 @@
       "noData": "No data to show",
       "placeholder": "kg",
       "today": "Today",
-      "saveButton": "Save weight"
+      "saveButton": "Save weight",
+      "bmiMissingHeight": "Add your height in your profile so we can calculate your BMI",
+      "bmiComments": {
+        "underweight": "Your BMI is below the recommended range. Focus on getting enough energy and building strength — your trainer can help with the nutrition plan.",
+        "normal": "Your BMI is in the recommended range. Great work, keep it up!",
+        "overweight": "Your BMI is slightly above the recommended range. With consistent training and nutrition you'll gradually move in the right direction.",
+        "obese": "Your BMI shows room to improve. You and your trainer can work on it step by step — every bit of progress counts."
+      }
     },
     "steps": {
       "title": "Steps",
@@ -123,13 +130,18 @@
     }
   },
   "profile": {
-    "title": "Profile",
+    "title": "My Account",
     "subtitle": "This info helps your trainer set up your training and nutrition plans better.",
     "save": "Save profile",
     "saveSuccessTitle": "Done",
     "saveSuccess": "Profile saved",
     "saveErrorTitle": "Error",
     "saveError": "Couldn't save the profile",
+    "fullNameLabel": "Full name",
+    "fullNamePlaceholder": "Jane Smith",
+    "emailLabel": "Email",
+    "phoneLabel": "Phone",
+    "phonePlaceholder": "+1 555 123 4567",
     "dateOfBirthLabel": "Date of birth",
     "dateOfBirthPlaceholder": "1990-05-20",
     "sexLabel": "Sex",

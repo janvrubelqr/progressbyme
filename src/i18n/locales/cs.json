@@ -102,7 +102,14 @@
       "noData": "Žádná data",
       "placeholder": "kg",
       "today": "Dnes",
-      "saveButton": "Uložit váhu"
+      "saveButton": "Uložit váhu",
+      "bmiMissingHeight": "Doplň si výšku v profilu, ať ti spočítáme BMI",
+      "bmiComments": {
+        "underweight": "BMI je pod doporučeným rozmezím. Zaměř se na dostatečný příjem energie a budování síly — trenér ti s jídelníčkem pomůže.",
+        "normal": "BMI je v doporučeném rozmezí. Skvělá práce, pokračuj v tom!",
+        "overweight": "BMI je mírně nad doporučeným rozmezím. S pravidelným tréninkem a jídelníčkem se budeš postupně posouvat správným směrem.",
+        "obese": "BMI ukazuje prostor pro zlepšení. Společně s trenérem na tom můžeš pracovat krok za krokem — každý pokrok se počítá."
+      }
     },
     "steps": {
       "title": "Kroky",
@@ -123,13 +130,18 @@
     }
   },
   "profile": {
-    "title": "Profil",
+    "title": "Můj účet",
     "subtitle": "Tyhle údaje pomáhají trenérovi lépe nastavit tréninky a jídelníček.",
     "save": "Uložit profil",
     "saveSuccessTitle": "Hotovo",
     "saveSuccess": "Profil byl uložen",
     "saveErrorTitle": "Chyba",
     "saveError": "Profil se nepodařilo uložit",
+    "fullNameLabel": "Jméno a příjmení",
+    "fullNamePlaceholder": "Jan Novák",
+    "emailLabel": "Email",
+    "phoneLabel": "Telefon",
+    "phonePlaceholder": "+420 601 234 567",
     "dateOfBirthLabel": "Datum narození",
     "dateOfBirthPlaceholder": "1990-05-20",
     "sexLabel": "Pohlaví",
