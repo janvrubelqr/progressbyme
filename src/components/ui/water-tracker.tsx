@@ -1,19 +1,21 @@
 import { Ionicons } from '@expo/vector-icons'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, Text, View } from 'react-native'
 
+import { Confetti } from '@/components/ui/confetti'
 import { InfoToggle } from '@/components/ui/info-toggle'
 import { MiniLineChart } from '@/components/ui/mini-line-chart'
+import type { WorkoutCategoryTag } from '@/lib/exercise-taxonomy'
 import { addDaysIso, formatDayLabel, getLastNDays, todayIso } from '@/lib/last-days'
 import { supabase } from '@/lib/supabase'
+import { calculateWaterGoalLiters, categoryToIntensity } from '@/lib/water-goal'
 import { useAuthStore } from '@/stores/auth-store'
 import type { WaterIntake } from '@/types/database'
 
 const STEP_LITERS = 0.25
 const BAR_HEIGHT = 140
 const DAYS = 4
-const DEFAULT_GOAL = 3
 
 function formatLiters(value: number) {
   return Number.isInteger(value) ? String(value) : value.toFixed(2).replace(/0$/, '')
@@ -25,6 +27,9 @@ export function WaterTracker({ className }: { className?: string }) {
   const [byDate, setByDate] = useState<Record<string, WaterIntake | null>>({})
   const [selectedDate, setSelectedDate] = useState(todayIso())
   const [isLoading, setIsLoading] = useState(true)
+  const [todayGoalLiters, setTodayGoalLiters] = useState<number | null>(null)
+  const [confettiTrigger, setConfettiTrigger] = useState(0)
+  const hasCelebratedToday = useRef(false)
 
   const loadRecentDays = useCallback(async () => {
     if (!profile) return
@@ -49,6 +54,29 @@ export function WaterTracker({ className }: { className?: string }) {
     loadRecentDays()
   }, [loadRecentDays])
 
+  // Dynamic goal for today: latest logged weight + today's scheduled workout
+  // intensity. See knowledge-base/hydration-guidelines.md for the formula.
+  useEffect(() => {
+    if (!profile) return
+    const today = todayIso()
+
+    Promise.all([
+      supabase
+        .from('weight_logs')
+        .select('weight_kg')
+        .eq('client_id', profile.id)
+        .lte('date', today)
+        .order('date', { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+      supabase.from('workouts').select('category').eq('client_id', profile.id).eq('scheduled_date', today).maybeSingle(),
+    ]).then(([weightRes, workoutRes]) => {
+      const weightKg = weightRes.data?.weight_kg ?? null
+      const category = (workoutRes.data?.category ?? null) as WorkoutCategoryTag | null
+      setTodayGoalLiters(calculateWaterGoalLiters(weightKg, categoryToIntensity(category)))
+    })
+  }, [profile])
+
   // Fetch a single date on demand when navigating further than the 4-day
   // window already loaded for the chart.
   useEffect(() => {
@@ -65,18 +93,29 @@ export function WaterTracker({ className }: { className?: string }) {
       })
   }, [profile, selectedDate, byDate])
 
+  const isToday = selectedDate === todayIso()
   const selectedEntry = byDate[selectedDate]
   const liters = selectedEntry?.liters ?? 0
-  const goal = selectedEntry?.goal_liters ?? DEFAULT_GOAL
+  const fallbackGoal = isToday ? (todayGoalLiters ?? 3) : 3
+  const goal = selectedEntry?.goal_liters ?? fallbackGoal
+  const goalReached = liters >= goal
 
   const updateLiters = async (next: number) => {
     if (!profile) return
     const clamped = Math.max(0, Math.round(next * 100) / 100)
+    const wasReached = liters >= goal
 
     setByDate(prev => ({
       ...prev,
       [selectedDate]: { ...(prev[selectedDate] ?? { id: '', client_id: profile.id, date: selectedDate, goal_liters: goal }), liters: clamped },
     }))
+
+    if (isToday && !wasReached && clamped >= goal && !hasCelebratedToday.current) {
+      hasCelebratedToday.current = true
+      setConfettiTrigger(prev => prev + 1)
+    } else if (clamped < goal) {
+      hasCelebratedToday.current = false
+    }
 
     await supabase
       .from('water_intake')
@@ -87,9 +126,10 @@ export function WaterTracker({ className }: { className?: string }) {
   }
 
   const percent = Math.min(100, Math.round((liters / goal) * 100))
+  const remainingLiters = Math.max(0, Math.round((goal - liters) * 100) / 100)
+  const overLiters = Math.max(0, Math.round((liters - goal) * 100) / 100)
   const days = getLastNDays(DAYS)
   const chartData = days.map(date => ({ label: formatDayLabel(date), value: byDate[date]?.liters ?? null }))
-  const isToday = selectedDate === todayIso()
 
   return (
     <View className={className}>
@@ -111,15 +151,26 @@ export function WaterTracker({ className }: { className?: string }) {
         </Pressable>
       </View>
 
-      <Text className="mb-4 font-display-bold text-lg text-ivory">
+      <Text className="font-display-bold text-lg text-ivory">
         {formatLiters(liters)} L <Text className="text-muted">| {formatLiters(goal)} L</Text>
       </Text>
 
-      <View className="flex-row items-center gap-4">
+      {goalReached ? (
+        <View className="mb-4 mt-1.5 flex-row items-center gap-1.5">
+          <Ionicons name="checkmark-circle" size={15} color="#4CD97B" />
+          <Text className="text-xs text-[#4CD97B]">
+            {overLiters > 0 ? t('home.water.overGoal', { amount: formatLiters(overLiters) }) : t('home.water.goalReached')}
+          </Text>
+        </View>
+      ) : (
+        <Text className="mb-4 mt-1.5 text-xs text-muted">{t('home.water.remaining', { amount: formatLiters(remainingLiters) })}</Text>
+      )}
+
+      <View className="relative flex-row items-center gap-4">
         <View style={{ height: BAR_HEIGHT }} className="w-6 justify-end overflow-hidden rounded-full bg-graph">
           <View
             style={{ height: `${percent}%` }}
-            className={`w-full rounded-full ${isLoading ? 'opacity-0' : 'bg-gold'}`}
+            className={`w-full rounded-full ${isLoading ? 'opacity-0' : goalReached ? 'bg-[#4CD97B]' : 'bg-gold'}`}
           />
         </View>
 
@@ -128,6 +179,8 @@ export function WaterTracker({ className }: { className?: string }) {
           <Text className="text-xs text-muted">50%</Text>
           <Text className="text-xs text-muted">0%</Text>
         </View>
+
+        {isToday ? <Confetti trigger={confettiTrigger} /> : null}
       </View>
 
       <View className="mt-4 flex-row items-center gap-3">

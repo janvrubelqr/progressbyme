@@ -21,3 +21,4 @@ actionable facts we can later reuse (app glossary text, coaching content, check-
 ## Current topics
 - [high-blood-pressure.md](high-blood-pressure.md) — Harvard Health Publishing, 2025
 - [strength-training.md](strength-training.md) — Harvard Health Publishing, 2021
+- [hydration-guidelines.md](hydration-guidelines.md) — EFSA-based internal reference, 2026 — formula implemented in `src/lib/water-goal.ts`

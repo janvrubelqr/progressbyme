@@ -58,7 +58,7 @@
     "pulse": "Pulz — počet úderov srdca za minútu. Normálna kľudová hodnota je zhruba 60–100.",
     "weight": "Váhu je najlepšie merať ráno nalačno, v rovnaký čas, pre presné porovnanie.",
     "steps": "Počet krokov za deň — orientačný ukazovateľ celkovej dennej aktivity.",
-    "water": "Odporúčaný denný príjem tekutín je zvyčajne 2–3 litre, podľa váhy a aktivity."
+    "water": "Denný cieľ sa počíta podľa tvojej poslednej zváženej váhy a podľa toho, či máš dnes naplánovaný tréning (a aký je náročný)."
   },
   "tabs": {
     "home": "Domov",
@@ -79,7 +79,10 @@
     "progress": "Progress",
     "water": {
       "title": "Pitný režim",
-      "history": "História"
+      "history": "História",
+      "remaining": "Ešte {{amount}} L do cieľa",
+      "goalReached": "Cieľ splnený!",
+      "overGoal": "Cieľ splnený! (+{{amount}} L navyše)"
     },
     "weight": {
       "title": "Váha",

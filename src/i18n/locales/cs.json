@@ -58,7 +58,7 @@
     "pulse": "Puls — počet úderů srdce za minutu. Normální klidová hodnota je zhruba 60–100.",
     "weight": "Váha se pro přesné srovnání nejlépe měří ráno nalačno, ve stejný čas.",
     "steps": "Počet kroků za den — orientační ukazatel celkové denní aktivity.",
-    "water": "Doporučený denní příjem tekutin je obvykle 2–3 litry, podle váhy a aktivity."
+    "water": "Denní cíl si appka počítá podle tvojí poslední zvážené váhy a podle toho, jestli máš dnes naplánovaný trénink (a jak náročný)."
   },
   "tabs": {
     "home": "Home",
@@ -79,7 +79,10 @@
     "progress": "Progress",
     "water": {
       "title": "Pitný režim",
-      "history": "Historie"
+      "history": "Historie",
+      "remaining": "Ještě {{amount}} L do cíle",
+      "goalReached": "Cíl splněn!",
+      "overGoal": "Cíl splněn! (+{{amount}} L navíc)"
     },
     "weight": {
       "title": "Váha",

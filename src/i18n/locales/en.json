@@ -58,7 +58,7 @@
     "pulse": "Pulse — how many times your heart beats per minute. A normal resting pulse is roughly 60–100.",
     "weight": "For accurate comparisons, weigh yourself in the morning on an empty stomach, at the same time each day.",
     "steps": "Daily step count — a rough indicator of your overall daily activity.",
-    "water": "The recommended daily fluid intake is usually 2–3 liters, depending on weight and activity."
+    "water": "Your daily goal is calculated from your latest logged weight and whether you have a workout scheduled today (and how intense it is)."
   },
   "tabs": {
     "home": "Home",
@@ -79,7 +79,10 @@
     "progress": "Progress",
     "water": {
       "title": "Water Tracker",
-      "history": "History"
+      "history": "History",
+      "remaining": "{{amount}} L to go",
+      "goalReached": "Goal reached!",
+      "overGoal": "Goal reached! (+{{amount}} L extra)"
     },
     "weight": {
       "title": "Weight",
