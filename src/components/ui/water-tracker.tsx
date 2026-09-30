@@ -1,5 +1,4 @@
 import { Ionicons } from '@expo/vector-icons'
-import * as Location from 'expo-location'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, Text, View } from 'react-native'
@@ -11,7 +10,7 @@ import type { WorkoutCategoryTag } from '@/lib/exercise-taxonomy'
 import { addDaysIso, formatDayLabel, getLastNDays, todayIso } from '@/lib/last-days'
 import { supabase } from '@/lib/supabase'
 import { calculateWaterGoalLiters, categoryToIntensity } from '@/lib/water-goal'
-import { fetchCurrentWeather, type CurrentWeather } from '@/lib/weather'
+import type { CurrentWeather } from '@/lib/weather'
 import { useAuthStore } from '@/stores/auth-store'
 import type { WaterIntake } from '@/types/database'
 
@@ -23,7 +22,11 @@ function formatLiters(value: number) {
   return Number.isInteger(value) ? String(value) : value.toFixed(2).replace(/0$/, '')
 }
 
-export function WaterTracker({ className }: { className?: string }) {
+// `weather` comes from the home screen's single shared location/weather
+// fetch (see useWeather) — undefined while it's still loading, null if
+// unavailable, so the goal can be computed as soon as weight/workout are
+// known and refined later if/when weather resolves.
+export function WaterTracker({ className, weather }: { className?: string; weather?: CurrentWeather | null }) {
   const { t } = useTranslation()
   const profile = useAuthStore(state => state.profile)
   const [byDate, setByDate] = useState<Record<string, WaterIntake | null>>({})
@@ -57,9 +60,10 @@ export function WaterTracker({ className }: { className?: string }) {
   }, [loadRecentDays])
 
   // Dynamic goal for today: latest logged weight + today's scheduled workout
-  // intensity, refined with live weather once/if it resolves (best-effort —
-  // silently skipped if location permission is denied/unavailable or the
-  // weather lookup fails). See knowledge-base/hydration-guidelines.md.
+  // intensity, refined with live weather (passed down from the home screen's
+  // shared fetch) once/if it resolves. See knowledge-base/hydration-guidelines.md.
+  const [todayInputs, setTodayInputs] = useState<{ weightKg: number | null; category: WorkoutCategoryTag | null } | null>(null)
+
   useEffect(() => {
     if (!profile) return
     const today = todayIso()
@@ -75,29 +79,24 @@ export function WaterTracker({ className }: { className?: string }) {
         .limit(1)
         .maybeSingle(),
       supabase.from('workouts').select('category').eq('client_id', profile.id).eq('scheduled_date', today).maybeSingle(),
-    ]).then(async ([weightRes, workoutRes]) => {
+    ]).then(([weightRes, workoutRes]) => {
       if (cancelled) return
-      const weightKg = weightRes.data?.weight_kg ?? null
-      const category = (workoutRes.data?.category ?? null) as WorkoutCategoryTag | null
-      const intensity = categoryToIntensity(category)
-      setTodayGoalLiters(calculateWaterGoalLiters(weightKg, intensity))
-
-      const { status } = await Location.requestForegroundPermissionsAsync().catch(() => ({ status: 'denied' as const }))
-      if (status !== 'granted' || cancelled) return
-
-      const position = await Location.getCurrentPositionAsync({}).catch(() => null)
-      if (!position || cancelled) return
-
-      const weather: CurrentWeather | null = await fetchCurrentWeather(position.coords.latitude, position.coords.longitude)
-      if (!weather || cancelled) return
-
-      setTodayGoalLiters(calculateWaterGoalLiters(weightKg, intensity, weather))
+      setTodayInputs({
+        weightKg: weightRes.data?.weight_kg ?? null,
+        category: (workoutRes.data?.category ?? null) as WorkoutCategoryTag | null,
+      })
     })
 
     return () => {
       cancelled = true
     }
   }, [profile])
+
+  useEffect(() => {
+    if (!todayInputs) return
+    const intensity = categoryToIntensity(todayInputs.category)
+    setTodayGoalLiters(calculateWaterGoalLiters(todayInputs.weightKg, intensity, weather))
+  }, [todayInputs, weather])
 
   // Fetch a single date on demand when navigating further than the 4-day
   // window already loaded for the chart.

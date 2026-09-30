@@ -71,6 +71,18 @@
     "greeting": "Ahoj",
     "namePlaceholder": "športovec",
     "nextWorkout": "Tvoj ďalší tréning",
+    "weather": {
+      "highLow": "H: {{high}}° L: {{low}}°",
+      "outdoorAdvisory": "Dnes má vonku pršať/byť chladno — zváž presun dnešného tréningu dovnútra (posilňovňa, bazén a pod.), aby ťa nezmoklo.",
+      "groups": {
+        "clear": "Jasno",
+        "cloudy": "Oblačno",
+        "fog": "Hmla",
+        "rain": "Dážď",
+        "snow": "Sneh",
+        "thunder": "Búrky"
+      }
+    },
     "noWorkout": "Zatiaľ nemáš naplánovaný tréning",
     "nutritionCardTitle": "Jedálniček",
     "nutritionCardSubtitle": "Dnešné makrá",

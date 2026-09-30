@@ -71,6 +71,18 @@
     "greeting": "Hi",
     "namePlaceholder": "athlete",
     "nextWorkout": "Your next workout",
+    "weather": {
+      "highLow": "H: {{high}}° L: {{low}}°",
+      "outdoorAdvisory": "Rain/cold is expected outside today — consider moving today's workout indoors (gym, pool, etc.) instead of getting caught in it.",
+      "groups": {
+        "clear": "Clear",
+        "cloudy": "Cloudy",
+        "fog": "Foggy",
+        "rain": "Rain",
+        "snow": "Snow",
+        "thunder": "Thunderstorms"
+      }
+    },
     "noWorkout": "You don't have a workout scheduled yet",
     "nutritionCardTitle": "Nutrition",
     "nutritionCardSubtitle": "Today's macros",

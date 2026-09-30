@@ -10,9 +10,12 @@ import { RoleSwitch } from '@/components/ui/role-switch'
 import { SignOutButton } from '@/components/ui/sign-out-button'
 import { StepsTracker } from '@/components/ui/steps-tracker'
 import { WaterTracker } from '@/components/ui/water-tracker'
+import { WeatherCard } from '@/components/ui/weather-card'
 import { WeightTracker } from '@/components/ui/weight-tracker'
 import { useAuth } from '@/hooks/use-auth'
+import { useWeather } from '@/hooks/use-weather'
 import { toDateLocale } from '@/lib/date-locale'
+import { todayIso } from '@/lib/last-days'
 import { pickTranslation } from '@/lib/pick-translation'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth-store'
@@ -28,6 +31,7 @@ export default function HomeScreen() {
   const { handleSignOut } = useAuth()
   const [nextWorkout, setNextWorkout] = useState<WorkoutRow | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const weatherState = useWeather(language)
 
   const loadData = useCallback(async () => {
     if (!profile) return
@@ -77,6 +81,11 @@ export default function HomeScreen() {
         </View>
       </View>
 
+      <WeatherCard
+        state={weatherState}
+        showOutdoorAdvisory={nextWorkout?.scheduled_date === todayIso() && nextWorkout?.category === 'cardio'}
+      />
+
       <Eyebrow className="mb-3 mt-8">{t('home.nextWorkout')}</Eyebrow>
       {isLoading ? (
         <ActivityIndicator color="#D2A85E" className="mt-4" />
@@ -124,7 +133,7 @@ export default function HomeScreen() {
 
       <View className="mt-3 flex-row gap-3">
         <Card className="flex-1">
-          <WaterTracker />
+          <WaterTracker weather={weatherState.status === 'ready' ? weatherState.data.current : weatherState.status === 'loading' ? undefined : null} />
         </Card>
         <Card className="flex-1">
           <BloodPressureTracker />
