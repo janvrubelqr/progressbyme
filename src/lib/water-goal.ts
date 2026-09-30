@@ -23,11 +23,36 @@ export function categoryToIntensity(category: WorkoutCategoryTag | null): Traini
   return 'none'
 }
 
-export function calculateWaterGoalLiters(weightKg: number | null, intensity: TrainingIntensity): number {
+const HOT_THRESHOLD_C = 30
+const HOT_CEILING_C = 40 // temp at which the bonus maxes out
+const HUMID_THRESHOLD_PCT = 60
+const HUMID_MULTIPLIER = 1.15
+
+// Climate correction: "+500 to 1500 ml/day above 30°C, scaled by humidity"
+// — scaled linearly between the two temperatures, then bumped for humid heat.
+export function climateBonusMl(temperatureC: number | null, humidityPct: number | null): number {
+  if (temperatureC == null || temperatureC <= HOT_THRESHOLD_C) return 0
+
+  const clampedTemp = Math.min(temperatureC, HOT_CEILING_C)
+  const fraction = (clampedTemp - HOT_THRESHOLD_C) / (HOT_CEILING_C - HOT_THRESHOLD_C)
+  let bonus = 500 + fraction * 1000
+
+  if (humidityPct != null && humidityPct >= HUMID_THRESHOLD_PCT) bonus *= HUMID_MULTIPLIER
+
+  return Math.round(bonus)
+}
+
+export function calculateWaterGoalLiters(
+  weightKg: number | null,
+  intensity: TrainingIntensity,
+  weather?: { temperatureC: number; humidityPct: number } | null
+): number {
   if (!weightKg || weightKg <= 0) return FALLBACK_GOAL_LITERS
 
   const baseMl = weightKg * 35 * (1 - DIET_COEFFICIENT)
-  const totalMl = baseMl + TRAINING_BONUS_ML[intensity]
+  const trainingMl = TRAINING_BONUS_ML[intensity]
+  const climateMl = climateBonusMl(weather?.temperatureC ?? null, weather?.humidityPct ?? null)
+  const totalMl = baseMl + trainingMl + climateMl
 
   // Round to the nearest 50 ml for a clean displayed target.
   const roundedMl = Math.round(totalMl / 50) * 50

@@ -58,7 +58,7 @@
     "pulse": "Puls — počet úderů srdce za minutu. Normální klidová hodnota je zhruba 60–100.",
     "weight": "Váha se pro přesné srovnání nejlépe měří ráno nalačno, ve stejný čas.",
     "steps": "Počet kroků za den — orientační ukazatel celkové denní aktivity.",
-    "water": "Denní cíl si appka počítá podle tvojí poslední zvážené váhy a podle toho, jestli máš dnes naplánovaný trénink (a jak náročný)."
+    "water": "Denní cíl si appka počítá podle tvojí poslední zvážené váhy, podle toho, jestli máš dnes naplánovaný trénink (a jak náročný), a podle aktuálního počasí v místě, kde jsi (pokud appce povolíš polohu)."
   },
   "tabs": {
     "home": "Home",

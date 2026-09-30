@@ -16,9 +16,10 @@
 `src/lib/water-goal.ts` (used by `src/components/ui/water-tracker.tsx`) computes each client's daily water goal instead of a flat 3 l target:
 - Base volume from the client's most recent logged body weight, using the conservative coefficient (`k = 0.10`) since the app can't verify every client's diet quality.
 - A training bonus added when a workout is scheduled for today, scaled by category as an exertion proxy (`cardio` → intense, `gym`/`home` → moderate, `rehab` → light), using the midpoint of each correction range above.
+- A climate bonus from live weather (`src/lib/weather.ts`, Open-Meteo, no API key) at the client's device location: 0 below 30°C, scaling linearly from 500 ml at 30°C to 1500 ml at 40°C, bumped 15% further when humidity is ≥60%. Best-effort — silently skipped if location permission is denied or the lookup fails.
 - Falls back to a flat 3 l default when no weight has been logged yet.
 
-Not yet modeled: age/senior minimum, pregnancy/breastfeeding, climate, and the >90 min electrolyte note — a trainer should still adjust individually where these apply.
+Not yet modeled: age/senior minimum, pregnancy/breastfeeding, and the >90 min electrolyte note — a trainer should still adjust individually where these apply.
 
 ## Sources
 - "Standardy a doporučení pro hydrataci organismu" (internal reference doc, EFSA-based) — added 2026-09-30

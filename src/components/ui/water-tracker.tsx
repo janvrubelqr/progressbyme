@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons'
+import * as Location from 'expo-location'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, Text, View } from 'react-native'
@@ -10,6 +11,7 @@ import type { WorkoutCategoryTag } from '@/lib/exercise-taxonomy'
 import { addDaysIso, formatDayLabel, getLastNDays, todayIso } from '@/lib/last-days'
 import { supabase } from '@/lib/supabase'
 import { calculateWaterGoalLiters, categoryToIntensity } from '@/lib/water-goal'
+import { fetchCurrentWeather, type CurrentWeather } from '@/lib/weather'
 import { useAuthStore } from '@/stores/auth-store'
 import type { WaterIntake } from '@/types/database'
 
@@ -55,10 +57,13 @@ export function WaterTracker({ className }: { className?: string }) {
   }, [loadRecentDays])
 
   // Dynamic goal for today: latest logged weight + today's scheduled workout
-  // intensity. See knowledge-base/hydration-guidelines.md for the formula.
+  // intensity, refined with live weather once/if it resolves (best-effort —
+  // silently skipped if location permission is denied/unavailable or the
+  // weather lookup fails). See knowledge-base/hydration-guidelines.md.
   useEffect(() => {
     if (!profile) return
     const today = todayIso()
+    let cancelled = false
 
     Promise.all([
       supabase
@@ -70,11 +75,28 @@ export function WaterTracker({ className }: { className?: string }) {
         .limit(1)
         .maybeSingle(),
       supabase.from('workouts').select('category').eq('client_id', profile.id).eq('scheduled_date', today).maybeSingle(),
-    ]).then(([weightRes, workoutRes]) => {
+    ]).then(async ([weightRes, workoutRes]) => {
+      if (cancelled) return
       const weightKg = weightRes.data?.weight_kg ?? null
       const category = (workoutRes.data?.category ?? null) as WorkoutCategoryTag | null
-      setTodayGoalLiters(calculateWaterGoalLiters(weightKg, categoryToIntensity(category)))
+      const intensity = categoryToIntensity(category)
+      setTodayGoalLiters(calculateWaterGoalLiters(weightKg, intensity))
+
+      const { status } = await Location.requestForegroundPermissionsAsync().catch(() => ({ status: 'denied' as const }))
+      if (status !== 'granted' || cancelled) return
+
+      const position = await Location.getCurrentPositionAsync({}).catch(() => null)
+      if (!position || cancelled) return
+
+      const weather: CurrentWeather | null = await fetchCurrentWeather(position.coords.latitude, position.coords.longitude)
+      if (!weather || cancelled) return
+
+      setTodayGoalLiters(calculateWaterGoalLiters(weightKg, intensity, weather))
     })
+
+    return () => {
+      cancelled = true
+    }
   }, [profile])
 
   // Fetch a single date on demand when navigating further than the 4-day

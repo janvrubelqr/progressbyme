@@ -58,7 +58,7 @@
     "pulse": "Pulse — how many times your heart beats per minute. A normal resting pulse is roughly 60–100.",
     "weight": "For accurate comparisons, weigh yourself in the morning on an empty stomach, at the same time each day.",
     "steps": "Daily step count — a rough indicator of your overall daily activity.",
-    "water": "Your daily goal is calculated from your latest logged weight and whether you have a workout scheduled today (and how intense it is)."
+    "water": "Your daily goal is calculated from your latest logged weight, whether you have a workout scheduled today (and how intense it is), and the current weather where you are (if you allow location access)."
   },
   "tabs": {
     "home": "Home",

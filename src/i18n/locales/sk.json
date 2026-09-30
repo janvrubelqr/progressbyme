@@ -58,7 +58,7 @@
     "pulse": "Pulz — počet úderov srdca za minútu. Normálna kľudová hodnota je zhruba 60–100.",
     "weight": "Váhu je najlepšie merať ráno nalačno, v rovnaký čas, pre presné porovnanie.",
     "steps": "Počet krokov za deň — orientačný ukazovateľ celkovej dennej aktivity.",
-    "water": "Denný cieľ sa počíta podľa tvojej poslednej zváženej váhy a podľa toho, či máš dnes naplánovaný tréning (a aký je náročný)."
+    "water": "Denný cieľ sa počíta podľa tvojej poslednej zváženej váhy, podľa toho, či máš dnes naplánovaný tréning (a aký je náročný), a podľa aktuálneho počasia v mieste, kde si (ak appke povolíš polohu)."
   },
   "tabs": {
     "home": "Domov",
