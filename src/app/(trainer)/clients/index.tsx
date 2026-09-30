@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons'
 import { Link } from 'expo-router'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -69,20 +70,27 @@ export default function ClientsListScreen() {
             <SignOutButton onPress={handleSignOut} />
           </View>
 
-          <View className="mt-4 flex-row items-end justify-between">
-            <Heading>{t('trainer.clientsTitle')}</Heading>
-            <View className="items-end gap-2">
-              <Link href="/(trainer)/clients/new" asChild>
-                <Pressable hitSlop={8} className="active:opacity-60">
-                  <Text className="font-sans-medium text-xs text-gold">{t('trainer.addClient.link')}</Text>
-                </Pressable>
-              </Link>
-              <Link href="/(trainer)/exercises" asChild>
-                <Pressable hitSlop={8} className="active:opacity-60">
-                  <Text className="font-sans-medium text-xs text-muted">{t('trainer.exerciseLibrary.manageLink')}</Text>
-                </Pressable>
-              </Link>
-            </View>
+          <Heading className="mb-3 mt-4">{t('trainer.clientsTitle')}</Heading>
+
+          <View className="flex-row flex-wrap gap-2">
+            <Link href="/(trainer)/clients/new" asChild>
+              <Pressable
+                hitSlop={4}
+                className="flex-row items-center gap-1.5 rounded-full border border-gold/40 bg-gold/10 px-3 py-1.5 active:opacity-60"
+              >
+                <Ionicons name="person-add-outline" size={14} color="#D2A85E" />
+                <Text className="font-sans-medium text-xs text-gold">{t('trainer.addClient.link')}</Text>
+              </Pressable>
+            </Link>
+            <Link href="/(trainer)/exercises" asChild>
+              <Pressable
+                hitSlop={4}
+                className="flex-row items-center gap-1.5 rounded-full border border-border px-3 py-1.5 active:opacity-60"
+              >
+                <Ionicons name="barbell-outline" size={14} color="#948C7D" />
+                <Text className="font-sans-medium text-xs text-muted">{t('trainer.exerciseLibrary.manageLink')}</Text>
+              </Pressable>
+            </Link>
           </View>
         </View>
       }

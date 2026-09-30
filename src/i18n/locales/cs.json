@@ -278,7 +278,7 @@
     "unnamedClient": "Bez jména",
     "pendingBadge": "Čeká na registraci",
     "addClient": {
-      "link": "+ Přidat klienta",
+      "link": "Přidat klienta",
       "title": "Nový klient",
       "nameLabel": "Jméno a příjmení",
       "emailLabel": "Email",

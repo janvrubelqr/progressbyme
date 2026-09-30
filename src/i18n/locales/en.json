@@ -278,7 +278,7 @@
     "unnamedClient": "No name",
     "pendingBadge": "Waiting for signup",
     "addClient": {
-      "link": "+ Add client",
+      "link": "Add client",
       "title": "New client",
       "nameLabel": "Full name",
       "emailLabel": "Email",
