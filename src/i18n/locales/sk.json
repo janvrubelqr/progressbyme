@@ -74,6 +74,7 @@
     "weather": {
       "highLow": "H: {{high}}° L: {{low}}°",
       "outdoorAdvisory": "Dnes má vonku pršať/byť chladno — zváž presun dnešného tréningu dovnútra (posilňovňa, bazén a pod.), aby ťa nezmoklo.",
+      "suggestionsLabel": "Skús radšej toto",
       "groups": {
         "clear": "Jasno",
         "cloudy": "Oblačno",

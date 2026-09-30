@@ -74,6 +74,7 @@
     "weather": {
       "highLow": "H: {{high}}° L: {{low}}°",
       "outdoorAdvisory": "Rain/cold is expected outside today — consider moving today's workout indoors (gym, pool, etc.) instead of getting caught in it.",
+      "suggestionsLabel": "Try this instead",
       "groups": {
         "clear": "Clear",
         "cloudy": "Cloudy",
