@@ -60,6 +60,40 @@
     "steps": "Daily step count — a rough indicator of your overall daily activity.",
     "water": "Your daily goal is calculated from your latest logged weight, whether you have a workout scheduled today (and how intense it is), and the current weather where you are (if you allow location access)."
   },
+  "history": {
+    "back": "Back",
+    "link": "History",
+    "entriesLabel": "Entries",
+    "weight": {
+      "title": "Weight history",
+      "comments": {
+        "no_data": "Not enough entries yet to see a trend. Try logging your weight regularly.",
+        "down_wanted": "You're down {{amount}} kg over the last month — great progress toward your goal!",
+        "down_unwanted": "You're down {{amount}} kg over the last month. If that wasn't the plan, it's worth discussing with your trainer.",
+        "up_wanted": "You're up {{amount}} kg over the last month — exactly what you're working toward!",
+        "up_unwanted": "You're up {{amount}} kg over the last month. If that wasn't the plan, it's worth talking to your trainer about your nutrition.",
+        "stable": "Your weight has been stable over the last month — great for maintaining."
+      }
+    },
+    "steps": {
+      "title": "Steps history",
+      "comments": {
+        "no_data": "No step entries yet.",
+        "above_target": "You're averaging {{amount}} steps a day over the last month — great activity level!",
+        "below_target": "You're averaging {{amount}} steps a day. Try adding a short extra walk to get closer to 8,000."
+      }
+    },
+    "bloodPressure": {
+      "title": "Blood pressure history",
+      "comments": {
+        "no_data": "No blood pressure entries yet.",
+        "normal": "Your latest reading is in the optimal range. Great!",
+        "elevated": "Your latest reading is slightly elevated. Worth keeping an eye on it.",
+        "high1": "Your latest reading is in the stage 1 hypertension range. Worth discussing with a doctor or your trainer.",
+        "high2": "Your latest reading is significantly elevated. We'd recommend contacting a doctor soon."
+      }
+    }
+  },
   "tabs": {
     "home": "Home",
     "workout": "Workout",

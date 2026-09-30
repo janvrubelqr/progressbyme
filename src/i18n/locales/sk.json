@@ -60,6 +60,40 @@
     "steps": "Počet krokov za deň — orientačný ukazovateľ celkovej dennej aktivity.",
     "water": "Denný cieľ sa počíta podľa tvojej poslednej zváženej váhy, podľa toho, či máš dnes naplánovaný tréning (a aký je náročný), a podľa aktuálneho počasia v mieste, kde si (ak appke povolíš polohu)."
   },
+  "history": {
+    "back": "Späť",
+    "link": "História",
+    "entriesLabel": "Záznamy",
+    "weight": {
+      "title": "História váhy",
+      "comments": {
+        "no_data": "Zatiaľ nemáš dosť záznamov na to, aby sme videli trend. Skús si váhu zapisovať pravidelne.",
+        "down_wanted": "Za posledný mesiac si schudol/a {{amount}} kg — skvelý pokrok smerom k cieľu!",
+        "down_unwanted": "Za posledný mesiac si schudol/a {{amount}} kg. Ak to nebol zámer, skús to prebrať s trénerom.",
+        "up_wanted": "Za posledný mesiac si pribral/a {{amount}} kg — presne to, na čom pracuješ!",
+        "up_unwanted": "Za posledný mesiac si pribral/a {{amount}} kg. Ak to nebol zámer, skús sa poradiť s trénerom o jedálničku.",
+        "stable": "Váha je posledný mesiac stabilná — skvelé pre udržanie formy."
+      }
+    },
+    "steps": {
+      "title": "História krokov",
+      "comments": {
+        "no_data": "Zatiaľ nemáš žiadne záznamy krokov.",
+        "above_target": "Priemerne {{amount}} krokov denne za posledný mesiac — skvelá aktivita!",
+        "below_target": "Priemerne {{amount}} krokov denne. Skús pridať krátku prechádzku navyše, aby si sa priblížil/a k 8 000 krokom."
+      }
+    },
+    "bloodPressure": {
+      "title": "História tlaku",
+      "comments": {
+        "no_data": "Zatiaľ nemáš žiadne záznamy tlaku.",
+        "normal": "Posledné namerané hodnoty sú v optimálnom rozmedzí. Skvelé!",
+        "elevated": "Posledné namerané hodnoty sú mierne zvýšené. Oplatí sa ich naďalej sledovať.",
+        "high1": "Posledné namerané hodnoty sú v pásme miernej hypertenzie. Odporúčame to prebrať s lekárom alebo trénerom.",
+        "high2": "Posledné namerané hodnoty sú výrazne zvýšené. Odporúčame čo najskôr kontaktovať lekára."
+      }
+    }
+  },
   "tabs": {
     "home": "Domov",
     "workout": "Tréning",

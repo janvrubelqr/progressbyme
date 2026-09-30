@@ -112,6 +112,12 @@ export function WeightTracker({ className }: { className?: string }) {
           </Pressable>
         </Link>
       ) : null}
+
+      <Link href="/(client)/weight-history" asChild>
+        <Pressable className="mt-3 items-center active:opacity-60">
+          <Text className="font-sans-medium text-xs text-gold">{t('history.link')} →</Text>
+        </Pressable>
+      </Link>
     </View>
   )
 }

@@ -60,6 +60,40 @@
     "steps": "Počet kroků za den — orientační ukazatel celkové denní aktivity.",
     "water": "Denní cíl si appka počítá podle tvojí poslední zvážené váhy, podle toho, jestli máš dnes naplánovaný trénink (a jak náročný), a podle aktuálního počasí v místě, kde jsi (pokud appce povolíš polohu)."
   },
+  "history": {
+    "back": "Zpět",
+    "link": "Historie",
+    "entriesLabel": "Záznamy",
+    "weight": {
+      "title": "Historie váhy",
+      "comments": {
+        "no_data": "Zatím nemáš dost záznamů na to, abychom viděli trend. Zkus si váhu zapisovat pravidelně.",
+        "down_wanted": "Za poslední měsíc jsi shodil/a {{amount}} kg — skvělý pokrok směrem k cíli!",
+        "down_unwanted": "Za poslední měsíc jsi shodil/a {{amount}} kg. Pokud to nebyl záměr, zkus to probrat s trenérem.",
+        "up_wanted": "Za poslední měsíc jsi přibral/a {{amount}} kg — přesně to, na čem pracuješ!",
+        "up_unwanted": "Za poslední měsíc jsi přibral/a {{amount}} kg. Pokud to nebyl záměr, zkus se poradit s trenérem o jídelníčku.",
+        "stable": "Váha je poslední měsíc stabilní — skvělé pro udržení formy."
+      }
+    },
+    "steps": {
+      "title": "Historie kroků",
+      "comments": {
+        "no_data": "Zatím nemáš žádné záznamy kroků.",
+        "above_target": "Průměrně {{amount}} kroků denně za poslední měsíc — skvělá aktivita!",
+        "below_target": "Průměrně {{amount}} kroků denně. Zkus přidat krátkou procházku navíc, ať se přiblížíš k 8 000 krokům."
+      }
+    },
+    "bloodPressure": {
+      "title": "Historie tlaku",
+      "comments": {
+        "no_data": "Zatím nemáš žádné záznamy tlaku.",
+        "normal": "Poslední naměřený tlak je v optimálním rozmezí. Skvělé!",
+        "elevated": "Poslední naměřený tlak je mírně zvýšený. Stojí za to ho dál sledovat.",
+        "high1": "Poslední naměřený tlak je v pásmu mírné hypertenze. Doporučujeme to probrat s lékařem nebo trenérem.",
+        "high2": "Poslední naměřený tlak je výrazně zvýšený. Doporučujeme co nejdřív kontaktovat lékaře."
+      }
+    }
+  },
   "tabs": {
     "home": "Home",
     "workout": "Trénink",

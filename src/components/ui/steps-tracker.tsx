@@ -1,6 +1,7 @@
+import { Link } from 'expo-router'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Text, TextInput, View } from 'react-native'
+import { Pressable, Text, TextInput, View } from 'react-native'
 
 import { Button } from '@/components/ui/button'
 import { InfoToggle } from '@/components/ui/info-toggle'
@@ -85,6 +86,12 @@ export function StepsTracker({ className }: { className?: string }) {
       </View>
 
       <Button label={t('home.steps.saveButton')} variant="ghost" onPress={saveToday} isLoading={isSaving} className="mt-3 py-2.5" />
+
+      <Link href="/(client)/steps-history" asChild>
+        <Pressable className="mt-3 items-center active:opacity-60">
+          <Text className="font-sans-medium text-xs text-gold">{t('history.link')} →</Text>
+        </Pressable>
+      </Link>
     </View>
   )
 }
