@@ -5,6 +5,7 @@ import { ActivityIndicator, FlatList, Pressable, Text, View } from 'react-native
 
 import { Card } from '@/components/ui/card'
 import { Heading } from '@/components/ui/heading'
+import { LanguageSwitcher } from '@/components/ui/language-switcher'
 import { RoleSwitch } from '@/components/ui/role-switch'
 import { SignOutButton } from '@/components/ui/sign-out-button'
 import { useAuth } from '@/hooks/use-auth'
@@ -61,21 +62,27 @@ export default function ClientsListScreen() {
       data={rows}
       keyExtractor={row => (row.kind === 'client' ? row.profile.id : row.intake.id)}
       ListHeaderComponent={
-        <View className="mb-6 flex-row items-center justify-between">
-          <Heading>{t('trainer.clientsTitle')}</Heading>
-          <View className="items-end gap-2">
+        <View className="mb-6">
+          <View className="flex-row flex-wrap items-center justify-end gap-2">
+            <LanguageSwitcher />
             <RoleSwitch />
-            <Link href="/(trainer)/clients/new" asChild>
-              <Pressable hitSlop={8} className="active:opacity-60">
-                <Text className="font-sans-medium text-xs text-gold">{t('trainer.addClient.link')}</Text>
-              </Pressable>
-            </Link>
-            <Link href="/(trainer)/exercises" asChild>
-              <Pressable hitSlop={8} className="active:opacity-60">
-                <Text className="font-sans-medium text-xs text-muted">{t('trainer.exerciseLibrary.manageLink')}</Text>
-              </Pressable>
-            </Link>
             <SignOutButton onPress={handleSignOut} />
+          </View>
+
+          <View className="mt-4 flex-row items-end justify-between">
+            <Heading>{t('trainer.clientsTitle')}</Heading>
+            <View className="items-end gap-2">
+              <Link href="/(trainer)/clients/new" asChild>
+                <Pressable hitSlop={8} className="active:opacity-60">
+                  <Text className="font-sans-medium text-xs text-gold">{t('trainer.addClient.link')}</Text>
+                </Pressable>
+              </Link>
+              <Link href="/(trainer)/exercises" asChild>
+                <Pressable hitSlop={8} className="active:opacity-60">
+                  <Text className="font-sans-medium text-xs text-muted">{t('trainer.exerciseLibrary.manageLink')}</Text>
+                </Pressable>
+              </Link>
+            </View>
           </View>
         </View>
       }

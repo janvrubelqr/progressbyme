@@ -7,6 +7,7 @@ import { ActivityIndicator, Pressable, RefreshControl, ScrollView, Text, View } 
 import { BloodPressureTracker } from '@/components/ui/blood-pressure-tracker'
 import { Card } from '@/components/ui/card'
 import { Eyebrow } from '@/components/ui/heading'
+import { LanguageSwitcher } from '@/components/ui/language-switcher'
 import { RoleSwitch } from '@/components/ui/role-switch'
 import { SignOutButton } from '@/components/ui/sign-out-button'
 import { StepsTracker } from '@/components/ui/steps-tracker'
@@ -67,30 +68,28 @@ export default function HomeScreen() {
       contentContainerClassName="px-5 pb-10"
       refreshControl={<RefreshControl refreshing={isLoading} onRefresh={loadData} tintColor="#D2A85E" />}
     >
-      <View className="flex-row items-start justify-between pb-2 pt-16">
+      <View className="flex-row flex-wrap items-center justify-end gap-2 pt-16">
+        <LanguageSwitcher />
+        <RoleSwitch />
         <Link href="/(client)/profile" asChild>
-          <Pressable hitSlop={6} className="active:opacity-60">
-            <Eyebrow>{t('home.greeting')}</Eyebrow>
-            <Text className="mt-1 font-display-bold text-2xl uppercase tracking-[1px] text-ivory">
-              {profile?.full_name ?? t('home.namePlaceholder')}
-            </Text>
+          <Pressable
+            hitSlop={6}
+            className="h-9 w-9 items-center justify-center rounded-full border border-border active:opacity-60"
+          >
+            <Ionicons name="settings-outline" size={16} color="#948C7D" />
           </Pressable>
         </Link>
-        <View className="items-end gap-2">
-          <RoleSwitch />
-          <View className="flex-row items-center gap-2">
-            <Link href="/(client)/profile" asChild>
-              <Pressable
-                hitSlop={6}
-                className="h-9 w-9 items-center justify-center rounded-full border border-border active:opacity-60"
-              >
-                <Ionicons name="settings-outline" size={16} color="#948C7D" />
-              </Pressable>
-            </Link>
-            <SignOutButton onPress={handleSignOut} />
-          </View>
-        </View>
+        <SignOutButton onPress={handleSignOut} />
       </View>
+
+      <Link href="/(client)/profile" asChild>
+        <Pressable hitSlop={6} className="mt-4 self-start active:opacity-60">
+          <Eyebrow>{t('home.greeting')}</Eyebrow>
+          <Text className="mt-1 font-display-bold text-2xl uppercase tracking-[1px] text-ivory">
+            {profile?.full_name ?? t('home.namePlaceholder')}
+          </Text>
+        </Pressable>
+      </Link>
 
       <WeatherCard
         state={weatherState}
