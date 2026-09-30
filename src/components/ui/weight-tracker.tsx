@@ -1,11 +1,11 @@
 import { Link } from 'expo-router'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, Text, TextInput, View } from 'react-native'
 
-import { Button } from '@/components/ui/button'
 import { InfoToggle } from '@/components/ui/info-toggle'
 import { MiniLineChart } from '@/components/ui/mini-line-chart'
+import { SaveStatus, type SaveState } from '@/components/ui/save-status'
 import { bmiCategory, calculateBmi } from '@/lib/bmi'
 import { decimalDigitsOnly } from '@/lib/digits-only'
 import { formatDayLabel, getLastNDays } from '@/lib/last-days'
@@ -13,6 +13,7 @@ import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth-store'
 
 const DAYS = 4
+const SAVE_DELAY_MS = 700
 
 function todayIso() {
   return new Date().toISOString().slice(0, 10)
@@ -23,7 +24,8 @@ export function WeightTracker({ className }: { className?: string }) {
   const profile = useAuthStore(state => state.profile)
   const [byDate, setByDate] = useState<Record<string, number>>({})
   const [todayInput, setTodayInput] = useState('')
-  const [isSaving, setIsSaving] = useState(false)
+  const [saveState, setSaveState] = useState<SaveState>('idle')
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const load = useCallback(async () => {
     if (!profile) return
@@ -45,18 +47,32 @@ export function WeightTracker({ className }: { className?: string }) {
     load()
   }, [load])
 
-  const saveToday = async () => {
-    if (!profile) return
-    const value = Number(todayInput.replace(',', '.'))
-    if (!todayInput || Number.isNaN(value)) return
+  useEffect(() => () => (saveTimeoutRef.current ? clearTimeout(saveTimeoutRef.current) : undefined), [])
 
-    setIsSaving(true)
+  const commitSave = async (raw: string) => {
+    if (!profile) return
+    const value = Number(raw.replace(',', '.'))
+    if (!raw || Number.isNaN(value)) return
+
+    setSaveState('saving')
     await supabase
       .from('weight_logs')
       .upsert({ client_id: profile.id, date: todayIso(), weight_kg: value }, { onConflict: 'client_id,date' })
-    setIsSaving(false)
-
     setByDate(prev => ({ ...prev, [todayIso()]: value }))
+    setSaveState('saved')
+    setTimeout(() => setSaveState(s => (s === 'saved' ? 'idle' : s)), 1500)
+  }
+
+  const handleChangeText = (raw: string) => {
+    const cleaned = decimalDigitsOnly(raw)
+    setTodayInput(cleaned)
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
+    saveTimeoutRef.current = setTimeout(() => commitSave(cleaned), SAVE_DELAY_MS)
+  }
+
+  const handleBlur = () => {
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
+    commitSave(todayInput)
   }
 
   const days = getLastNDays(DAYS)
@@ -85,7 +101,8 @@ export function WeightTracker({ className }: { className?: string }) {
       <View className="mt-4 flex-row items-center gap-2">
         <TextInput
           value={todayInput}
-          onChangeText={v => setTodayInput(decimalDigitsOnly(v))}
+          onChangeText={handleChangeText}
+          onBlur={handleBlur}
           keyboardType="decimal-pad"
           placeholder={t('home.weight.placeholder')}
           className="min-w-0 flex-1 rounded-md border border-border bg-graph px-3 py-2 text-base text-ivory"
@@ -93,7 +110,7 @@ export function WeightTracker({ className }: { className?: string }) {
         <Text className="text-sm text-muted">kg</Text>
       </View>
 
-      <Button label={t('home.weight.saveButton')} variant="ghost" onPress={saveToday} isLoading={isSaving} className="mt-3 py-2.5" />
+      <SaveStatus state={saveState} className="mt-2" />
 
       {bmi != null && category ? (
         <View className="mt-3 rounded-md border border-border bg-coal p-2.5">

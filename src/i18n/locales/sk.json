@@ -1,4 +1,8 @@
 {
+  "common": {
+    "saving": "Ukladám…",
+    "saved": "Uložené"
+  },
   "landing": {
     "brandName": "David Dubský",
     "brandSub": "Coaching",
@@ -160,7 +164,8 @@
       "unit": "mmHg",
       "today": "Dnes",
       "addButton": "Pridať meranie",
-      "validationError": "Vyplň horný aj dolný tlak"
+      "validationError": "Vyplň horný aj dolný tlak",
+      "hint": "Vyplň horný aj dolný tlak, uloží sa to samo"
     }
   },
   "profile": {

@@ -1,11 +1,11 @@
 import { Ionicons } from '@expo/vector-icons'
 import { Link } from 'expo-router'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, Text, TextInput, View } from 'react-native'
 
-import { Button } from '@/components/ui/button'
 import { MiniLineChart } from '@/components/ui/mini-line-chart'
+import { SaveStatus, type SaveState } from '@/components/ui/save-status'
 import { digitsOnly } from '@/lib/digits-only'
 import { addDaysIso, formatDayLabel, getLastNDays, todayIso } from '@/lib/last-days'
 import { supabase } from '@/lib/supabase'
@@ -13,6 +13,7 @@ import { useAuthStore } from '@/stores/auth-store'
 import type { BloodPressureLog } from '@/types/database'
 
 const DAYS = 4
+const SAVE_DELAY_MS = 700
 
 export function BloodPressureTracker({ className }: { className?: string }) {
   const { t } = useTranslation()
@@ -22,9 +23,13 @@ export function BloodPressureTracker({ className }: { className?: string }) {
   const [systolic, setSystolic] = useState('')
   const [diastolic, setDiastolic] = useState('')
   const [pulse, setPulse] = useState('')
-  const [isSaving, setIsSaving] = useState(false)
-  const [validationError, setValidationError] = useState(false)
+  const [saveState, setSaveState] = useState<SaveState>('idle')
   const [openInfo, setOpenInfo] = useState<'systolic' | 'diastolic' | 'pulse' | null>(null)
+
+  const systolicRef = useRef('')
+  const diastolicRef = useRef('')
+  const pulseRef = useRef('')
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const loadRecentDays = useCallback(async () => {
     if (!profile) return
@@ -65,45 +70,50 @@ export function BloodPressureTracker({ className }: { className?: string }) {
   }, [profile, selectedDate, byDate])
 
   useEffect(() => {
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
     const entry = byDate[selectedDate]
-    setSystolic(entry ? String(entry.systolic) : '')
-    setDiastolic(entry ? String(entry.diastolic) : '')
-    setPulse(entry?.pulse != null ? String(entry.pulse) : '')
+    const sys = entry ? String(entry.systolic) : ''
+    const dia = entry ? String(entry.diastolic) : ''
+    const pul = entry?.pulse != null ? String(entry.pulse) : ''
+    setSystolic(sys)
+    setDiastolic(dia)
+    setPulse(pul)
+    systolicRef.current = sys
+    diastolicRef.current = dia
+    pulseRef.current = pul
   }, [selectedDate, byDate])
 
-  const saveSelectedDate = async () => {
+  useEffect(() => () => (saveTimeoutRef.current ? clearTimeout(saveTimeoutRef.current) : undefined), [])
+
+  const commitSave = async () => {
     if (!profile) return
-    const sys = Math.round(Number(systolic))
-    const dia = Math.round(Number(diastolic))
-    if (!systolic || !diastolic || Number.isNaN(sys) || Number.isNaN(dia)) return false
+    const sys = Math.round(Number(systolicRef.current))
+    const dia = Math.round(Number(diastolicRef.current))
+    if (!systolicRef.current || !diastolicRef.current || Number.isNaN(sys) || Number.isNaN(dia)) return
 
-    const pulseValue = pulse ? Math.round(Number(pulse)) : null
+    const pulseValue = pulseRef.current ? Math.round(Number(pulseRef.current)) : null
+    const date = selectedDate
 
+    setSaveState('saving')
     const { data } = await supabase
       .from('blood_pressure_logs')
-      .upsert(
-        { client_id: profile.id, date: selectedDate, systolic: sys, diastolic: dia, pulse: pulseValue },
-        { onConflict: 'client_id,date' }
-      )
+      .upsert({ client_id: profile.id, date, systolic: sys, diastolic: dia, pulse: pulseValue }, { onConflict: 'client_id,date' })
       .select()
       .single()
 
-    if (data) {
-      setByDate(prev => ({ ...prev, [selectedDate]: data as BloodPressureLog }))
-      return true
-    }
-    return false
+    if (data) setByDate(prev => ({ ...prev, [date]: data as BloodPressureLog }))
+    setSaveState('saved')
+    setTimeout(() => setSaveState(s => (s === 'saved' ? 'idle' : s)), 1500)
   }
 
-  const handleAddPress = async () => {
-    if (!systolic || !diastolic) {
-      setValidationError(true)
-      return
-    }
-    setValidationError(false)
-    setIsSaving(true)
-    await saveSelectedDate()
-    setIsSaving(false)
+  const scheduleSave = () => {
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
+    saveTimeoutRef.current = setTimeout(commitSave, SAVE_DELAY_MS)
+  }
+
+  const handleBlur = () => {
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
+    commitSave()
   }
 
   const days = getLastNDays(DAYS)
@@ -143,9 +153,12 @@ export function BloodPressureTracker({ className }: { className?: string }) {
           <TextInput
             value={systolic}
             onChangeText={v => {
-              setSystolic(digitsOnly(v))
-              setValidationError(false)
+              const cleaned = digitsOnly(v)
+              setSystolic(cleaned)
+              systolicRef.current = cleaned
+              scheduleSave()
             }}
+            onBlur={handleBlur}
             keyboardType="number-pad"
             placeholder={t('home.bloodPressure.systolicPlaceholder')}
             className="rounded-md border border-border bg-graph px-3 py-2 text-base text-ivory"
@@ -167,9 +180,12 @@ export function BloodPressureTracker({ className }: { className?: string }) {
           <TextInput
             value={diastolic}
             onChangeText={v => {
-              setDiastolic(digitsOnly(v))
-              setValidationError(false)
+              const cleaned = digitsOnly(v)
+              setDiastolic(cleaned)
+              diastolicRef.current = cleaned
+              scheduleSave()
             }}
+            onBlur={handleBlur}
             keyboardType="number-pad"
             placeholder={t('home.bloodPressure.diastolicPlaceholder')}
             className="rounded-md border border-border bg-graph px-3 py-2 text-base text-ivory"
@@ -190,7 +206,13 @@ export function BloodPressureTracker({ className }: { className?: string }) {
         <View className="min-w-0 flex-1">
           <TextInput
             value={pulse}
-            onChangeText={v => setPulse(digitsOnly(v))}
+            onChangeText={v => {
+              const cleaned = digitsOnly(v)
+              setPulse(cleaned)
+              pulseRef.current = cleaned
+              scheduleSave()
+            }}
+            onBlur={handleBlur}
             keyboardType="number-pad"
             placeholder={t('home.bloodPressure.pulsePlaceholder')}
             className="rounded-md border border-border bg-graph px-3 py-2 text-base text-ivory"
@@ -215,17 +237,11 @@ export function BloodPressureTracker({ className }: { className?: string }) {
         </View>
       ) : null}
 
-      {validationError ? (
-        <Text className="mt-2 text-xs text-red-400">{t('home.bloodPressure.validationError')}</Text>
-      ) : null}
-
-      <Button
-        label={t('home.bloodPressure.addButton')}
-        variant="ghost"
-        onPress={handleAddPress}
-        isLoading={isSaving}
-        className="mt-3 py-2.5"
-      />
+      {!systolic || !diastolic ? (
+        <Text className="mt-2 text-[11px] text-muted">{t('home.bloodPressure.hint')}</Text>
+      ) : (
+        <SaveStatus state={saveState} className="mt-2" />
+      )}
 
       <Link href="/(client)/blood-pressure-history" asChild>
         <Pressable className="mt-3 items-center active:opacity-60">

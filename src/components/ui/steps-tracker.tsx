@@ -1,17 +1,18 @@
 import { Link } from 'expo-router'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, Text, TextInput, View } from 'react-native'
 
-import { Button } from '@/components/ui/button'
 import { InfoToggle } from '@/components/ui/info-toggle'
 import { MiniLineChart } from '@/components/ui/mini-line-chart'
+import { SaveStatus, type SaveState } from '@/components/ui/save-status'
 import { digitsOnly } from '@/lib/digits-only'
 import { formatDayLabel, getLastNDays } from '@/lib/last-days'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth-store'
 
 const DAYS = 4
+const SAVE_DELAY_MS = 700
 
 function todayIso() {
   return new Date().toISOString().slice(0, 10)
@@ -22,7 +23,8 @@ export function StepsTracker({ className }: { className?: string }) {
   const profile = useAuthStore(state => state.profile)
   const [byDate, setByDate] = useState<Record<string, number>>({})
   const [todayInput, setTodayInput] = useState('')
-  const [isSaving, setIsSaving] = useState(false)
+  const [saveState, setSaveState] = useState<SaveState>('idle')
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const load = useCallback(async () => {
     if (!profile) return
@@ -44,16 +46,30 @@ export function StepsTracker({ className }: { className?: string }) {
     load()
   }, [load])
 
-  const saveToday = async () => {
+  useEffect(() => () => (saveTimeoutRef.current ? clearTimeout(saveTimeoutRef.current) : undefined), [])
+
+  const commitSave = async (raw: string) => {
     if (!profile) return
-    const value = Math.round(Number(todayInput))
-    if (!todayInput || Number.isNaN(value)) return
+    const value = Math.round(Number(raw))
+    if (!raw || Number.isNaN(value)) return
 
-    setIsSaving(true)
+    setSaveState('saving')
     await supabase.from('step_logs').upsert({ client_id: profile.id, date: todayIso(), steps: value }, { onConflict: 'client_id,date' })
-    setIsSaving(false)
-
     setByDate(prev => ({ ...prev, [todayIso()]: value }))
+    setSaveState('saved')
+    setTimeout(() => setSaveState(s => (s === 'saved' ? 'idle' : s)), 1500)
+  }
+
+  const handleChangeText = (raw: string) => {
+    const cleaned = digitsOnly(raw)
+    setTodayInput(cleaned)
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
+    saveTimeoutRef.current = setTimeout(() => commitSave(cleaned), SAVE_DELAY_MS)
+  }
+
+  const handleBlur = () => {
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
+    commitSave(todayInput)
   }
 
   const days = getLastNDays(DAYS)
@@ -78,14 +94,15 @@ export function StepsTracker({ className }: { className?: string }) {
       <View className="mt-4">
         <TextInput
           value={todayInput}
-          onChangeText={v => setTodayInput(digitsOnly(v))}
+          onChangeText={handleChangeText}
+          onBlur={handleBlur}
           keyboardType="number-pad"
           placeholder={t('home.steps.placeholder')}
           className="rounded-md border border-border bg-graph px-3 py-2 text-base text-ivory"
         />
       </View>
 
-      <Button label={t('home.steps.saveButton')} variant="ghost" onPress={saveToday} isLoading={isSaving} className="mt-3 py-2.5" />
+      <SaveStatus state={saveState} className="mt-2" />
 
       <Link href="/(client)/steps-history" asChild>
         <Pressable className="mt-3 items-center active:opacity-60">

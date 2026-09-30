@@ -1,4 +1,8 @@
 {
+  "common": {
+    "saving": "Saving…",
+    "saved": "Saved"
+  },
   "landing": {
     "brandName": "David Dubský",
     "brandSub": "Coaching",
@@ -160,7 +164,8 @@
       "unit": "mmHg",
       "today": "Today",
       "addButton": "Add measurement",
-      "validationError": "Fill in both systolic and diastolic"
+      "validationError": "Fill in both systolic and diastolic",
+      "hint": "Fill in both systolic and diastolic — it'll save automatically"
     }
   },
   "profile": {
