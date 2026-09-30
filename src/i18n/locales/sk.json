@@ -142,6 +142,8 @@
       "today": "Dnes",
       "saveButton": "Uložiť váhu",
       "bmiMissingHeight": "Doplň si výšku v profile, aby sme ti vypočítali BMI",
+      "improvementCommentDown": "-{{amount}} kg oproti minule, skvelá práca! 🎉",
+      "improvementCommentUp": "+{{amount}} kg oproti minule, presne to, na čom pracuješ! 🎉",
       "bmiComments": {
         "underweight": "BMI je pod odporúčaným rozmedzím. Zameraj sa na dostatočný príjem energie a budovanie sily — tréner ti pomôže s jedálničkom.",
         "normal": "BMI je v odporúčanom rozmedzí. Skvelá práca, pokračuj v tom!",
@@ -153,7 +155,8 @@
       "title": "Kroky",
       "today": "Dnes",
       "placeholder": "Počet krokov",
-      "saveButton": "Uložiť kroky"
+      "saveButton": "Uložiť kroky",
+      "improvementComment": "+{{amount}} krokov oproti minule! 🎉"
     },
     "bloodPressure": {
       "title": "Krvný tlak",
@@ -165,7 +168,8 @@
       "today": "Dnes",
       "addButton": "Pridať meranie",
       "validationError": "Vyplň horný aj dolný tlak",
-      "hint": "Vyplň horný aj dolný tlak, uloží sa to samo"
+      "hint": "Vyplň horný aj dolný tlak, uloží sa to samo",
+      "improvementComment": "Tlak sa posúva správnym smerom, skvelá práca! 🎉"
     }
   },
   "profile": {

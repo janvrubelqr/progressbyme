@@ -4,11 +4,13 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, Text, TextInput, View } from 'react-native'
 
+import { Confetti } from '@/components/ui/confetti'
 import { MiniLineChart } from '@/components/ui/mini-line-chart'
 import { SaveStatus, type SaveState } from '@/components/ui/save-status'
 import { digitsOnly } from '@/lib/digits-only'
 import { addDaysIso, formatDayLabel, getLastNDays, todayIso } from '@/lib/last-days'
 import { supabase } from '@/lib/supabase'
+import { isBloodPressureImprovement } from '@/lib/tracker-insights'
 import { useAuthStore } from '@/stores/auth-store'
 import type { BloodPressureLog } from '@/types/database'
 
@@ -25,11 +27,13 @@ export function BloodPressureTracker({ className }: { className?: string }) {
   const [pulse, setPulse] = useState('')
   const [saveState, setSaveState] = useState<SaveState>('idle')
   const [openInfo, setOpenInfo] = useState<'systolic' | 'diastolic' | 'pulse' | null>(null)
+  const [celebration, setCelebration] = useState<{ trigger: number; comment: string } | null>(null)
 
   const systolicRef = useRef('')
   const diastolicRef = useRef('')
   const pulseRef = useRef('')
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const celebrationCountRef = useRef(0)
 
   const loadRecentDays = useCallback(async () => {
     if (!profile) return
@@ -94,6 +98,12 @@ export function BloodPressureTracker({ className }: { className?: string }) {
     const pulseValue = pulseRef.current ? Math.round(Number(pulseRef.current)) : null
     const date = selectedDate
 
+    const previousSystolic = getLastNDays(DAYS)
+      .filter(d => d !== date)
+      .reverse()
+      .map(d => byDate[d]?.systolic)
+      .find((v): v is number => v != null)
+
     setSaveState('saving')
     const { data } = await supabase
       .from('blood_pressure_logs')
@@ -104,6 +114,12 @@ export function BloodPressureTracker({ className }: { className?: string }) {
     if (data) setByDate(prev => ({ ...prev, [date]: data as BloodPressureLog }))
     setSaveState('saved')
     setTimeout(() => setSaveState(s => (s === 'saved' ? 'idle' : s)), 1500)
+
+    if (isBloodPressureImprovement(previousSystolic ?? null, sys)) {
+      celebrationCountRef.current += 1
+      setCelebration({ trigger: celebrationCountRef.current, comment: t('home.bloodPressure.improvementComment') })
+      setTimeout(() => setCelebration(null), 4000)
+    }
   }
 
   const scheduleSave = () => {
@@ -122,7 +138,9 @@ export function BloodPressureTracker({ className }: { className?: string }) {
   const isToday = selectedDate === todayIso()
 
   return (
-    <View className={className}>
+    <View className={`relative ${className ?? ''}`}>
+      {celebration ? <Confetti trigger={celebration.trigger} /> : null}
+
       <Text className="mb-1 font-display-medium text-[11px] uppercase tracking-[2px] text-gold">
         {t('home.bloodPressure.title')}
       </Text>
@@ -242,6 +260,12 @@ export function BloodPressureTracker({ className }: { className?: string }) {
       ) : (
         <SaveStatus state={saveState} className="mt-2" />
       )}
+
+      {celebration ? (
+        <View className="mt-2 rounded-md border border-[#4CD97B]/30 bg-[#4CD97B]/10 px-2.5 py-2">
+          <Text className="text-xs leading-4 text-[#4CD97B]">{celebration.comment}</Text>
+        </View>
+      ) : null}
 
       <Link href="/(client)/blood-pressure-history" asChild>
         <Pressable className="mt-3 items-center active:opacity-60">

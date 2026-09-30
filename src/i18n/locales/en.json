@@ -142,6 +142,8 @@
       "today": "Today",
       "saveButton": "Save weight",
       "bmiMissingHeight": "Add your height in your profile so we can calculate your BMI",
+      "improvementCommentDown": "-{{amount}} kg since last time, great work! 🎉",
+      "improvementCommentUp": "+{{amount}} kg since last time, exactly what you're working toward! 🎉",
       "bmiComments": {
         "underweight": "Your BMI is below the recommended range. Focus on getting enough energy and building strength — your trainer can help with the nutrition plan.",
         "normal": "Your BMI is in the recommended range. Great work, keep it up!",
@@ -153,7 +155,8 @@
       "title": "Steps",
       "today": "Today",
       "placeholder": "Step count",
-      "saveButton": "Save steps"
+      "saveButton": "Save steps",
+      "improvementComment": "+{{amount}} steps since last time! 🎉"
     },
     "bloodPressure": {
       "title": "Blood Pressure",
@@ -165,7 +168,8 @@
       "today": "Today",
       "addButton": "Add measurement",
       "validationError": "Fill in both systolic and diastolic",
-      "hint": "Fill in both systolic and diastolic — it'll save automatically"
+      "hint": "Fill in both systolic and diastolic — it'll save automatically",
+      "improvementComment": "Your blood pressure is moving in the right direction, great work! 🎉"
     }
   },
   "profile": {

@@ -3,12 +3,14 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, Text, TextInput, View } from 'react-native'
 
+import { Confetti } from '@/components/ui/confetti'
 import { InfoToggle } from '@/components/ui/info-toggle'
 import { MiniLineChart } from '@/components/ui/mini-line-chart'
 import { SaveStatus, type SaveState } from '@/components/ui/save-status'
 import { digitsOnly } from '@/lib/digits-only'
 import { formatDayLabel, getLastNDays } from '@/lib/last-days'
 import { supabase } from '@/lib/supabase'
+import { isStepsImprovement } from '@/lib/tracker-insights'
 import { useAuthStore } from '@/stores/auth-store'
 
 const DAYS = 4
@@ -24,7 +26,9 @@ export function StepsTracker({ className }: { className?: string }) {
   const [byDate, setByDate] = useState<Record<string, number>>({})
   const [todayInput, setTodayInput] = useState('')
   const [saveState, setSaveState] = useState<SaveState>('idle')
+  const [celebration, setCelebration] = useState<{ trigger: number; comment: string } | null>(null)
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const celebrationCountRef = useRef(0)
 
   const load = useCallback(async () => {
     if (!profile) return
@@ -53,11 +57,25 @@ export function StepsTracker({ className }: { className?: string }) {
     const value = Math.round(Number(raw))
     if (!raw || Number.isNaN(value)) return
 
+    const today = todayIso()
+    const previousSteps = getLastNDays(DAYS)
+      .filter(d => d !== today)
+      .reverse()
+      .map(d => byDate[d])
+      .find((v): v is number => v != null)
+
     setSaveState('saving')
-    await supabase.from('step_logs').upsert({ client_id: profile.id, date: todayIso(), steps: value }, { onConflict: 'client_id,date' })
-    setByDate(prev => ({ ...prev, [todayIso()]: value }))
+    await supabase.from('step_logs').upsert({ client_id: profile.id, date: today, steps: value }, { onConflict: 'client_id,date' })
+    setByDate(prev => ({ ...prev, [today]: value }))
     setSaveState('saved')
     setTimeout(() => setSaveState(s => (s === 'saved' ? 'idle' : s)), 1500)
+
+    if (isStepsImprovement(previousSteps ?? null, value)) {
+      const delta = (value - (previousSteps ?? 0)).toLocaleString()
+      celebrationCountRef.current += 1
+      setCelebration({ trigger: celebrationCountRef.current, comment: t('home.steps.improvementComment', { amount: delta }) })
+      setTimeout(() => setCelebration(null), 4000)
+    }
   }
 
   const handleChangeText = (raw: string) => {
@@ -77,7 +95,9 @@ export function StepsTracker({ className }: { className?: string }) {
   const todaySteps = byDate[todayIso()]
 
   return (
-    <View className={className}>
+    <View className={`relative ${className ?? ''}`}>
+      {celebration ? <Confetti trigger={celebration.trigger} /> : null}
+
       <View className="mb-1 flex-row items-center gap-1.5">
         <Text className="font-display-medium text-[11px] uppercase tracking-[2px] text-gold">
           {t('home.steps.title')}
@@ -103,6 +123,12 @@ export function StepsTracker({ className }: { className?: string }) {
       </View>
 
       <SaveStatus state={saveState} className="mt-2" />
+
+      {celebration ? (
+        <View className="mt-2 rounded-md border border-[#4CD97B]/30 bg-[#4CD97B]/10 px-2.5 py-2">
+          <Text className="text-xs leading-4 text-[#4CD97B]">{celebration.comment}</Text>
+        </View>
+      ) : null}
 
       <Link href="/(client)/steps-history" asChild>
         <Pressable className="mt-3 items-center active:opacity-60">

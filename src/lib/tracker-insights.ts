@@ -46,3 +46,30 @@ export function bloodPressureCategory(systolic: number | null, diastolic: number
   if (systolic >= 120) return 'elevated'
   return 'normal'
 }
+
+// Day-over-day "nice direction" checks used by the home-screen trackers to
+// decide when to celebrate (confetti + a one-line comment) right after a
+// save, compared to the most recently logged entry before it.
+
+const NORMAL_SYSTOLIC_MIN = 90
+const NORMAL_SYSTOLIC_MAX = 120
+
+export function isStepsImprovement(previousSteps: number | null, newSteps: number): boolean {
+  return previousSteps != null && newSteps > previousSteps
+}
+
+export function isWeightImprovement(previousWeightKg: number | null, newWeightKg: number, goal: FitnessGoal | null): boolean {
+  if (previousWeightKg == null || newWeightKg === previousWeightKg) return false
+  const wantsUp = goal === 'gain_muscle'
+  return wantsUp ? newWeightKg > previousWeightKg : newWeightKg < previousWeightKg
+}
+
+// Only meaningful when the previous reading was outside the normal band —
+// moving further from normal, or a normal-to-normal fluctuation, isn't a
+// "win" worth celebrating.
+export function isBloodPressureImprovement(previousSystolic: number | null, newSystolic: number): boolean {
+  if (previousSystolic == null) return false
+  if (previousSystolic > NORMAL_SYSTOLIC_MAX) return newSystolic < previousSystolic
+  if (previousSystolic < NORMAL_SYSTOLIC_MIN) return newSystolic > previousSystolic
+  return false
+}
