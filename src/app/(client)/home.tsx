@@ -116,15 +116,15 @@ export default function HomeScreen() {
         </Card>
       )}
 
-      <View className="mt-6 flex-row gap-3">
+      <View className="mt-6 flex-col gap-3 sm:flex-row">
         <Link href="/(client)/nutrition" asChild>
-          <Card className="flex-1">
+          <Card className="sm:flex-1">
             <Text className="font-display text-base text-ivory">{t('home.nutritionCardTitle')}</Text>
             <Text className="mt-1 text-sm text-muted">{t('home.nutritionCardSubtitle')}</Text>
           </Card>
         </Link>
         <Link href="/(client)/checkin" asChild>
-          <Card className="flex-1">
+          <Card className="sm:flex-1">
             <Text className="font-display text-base text-ivory">{t('home.checkinCardTitle')}</Text>
             <Text className="mt-1 text-sm text-muted">{t('home.checkinCardSubtitle')}</Text>
           </Card>
@@ -132,20 +132,20 @@ export default function HomeScreen() {
       </View>
 
       <Eyebrow className="mb-3 mt-8">{t('home.progress')}</Eyebrow>
-      <View className="flex-row gap-3">
-        <Card className="flex-1">
+      <View className="flex-col gap-3 sm:flex-row">
+        <Card className="sm:flex-1">
           <WeightTracker />
         </Card>
-        <Card className="flex-1">
+        <Card className="sm:flex-1">
           <StepsTracker />
         </Card>
       </View>
 
-      <View className="mt-3 flex-row gap-3">
-        <Card className="flex-1">
+      <View className="mt-3 flex-col gap-3 sm:flex-row">
+        <Card className="sm:flex-1">
           <WaterTracker weather={weatherState.status === 'ready' ? weatherState.data.current : weatherState.status === 'loading' ? undefined : null} />
         </Card>
-        <Card className="flex-1">
+        <Card className="sm:flex-1">
           <BloodPressureTracker />
         </Card>
       </View>
