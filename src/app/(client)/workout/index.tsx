@@ -80,7 +80,7 @@ export default function WorkoutListScreen() {
                     activeCategory === null ? 'border-gold bg-gold' : 'border-border bg-graph'
                   }`}
                 >
-                  <Text className={`font-sans-medium text-xs ${activeCategory === null ? 'text-coal' : 'text-ivory'}`}>
+                  <Text className={`font-sans-medium text-xs ${activeCategory === null ? 'text-on-gold' : 'text-ivory'}`}>
                     {t('workout.categoryAll')}
                   </Text>
                 </Pressable>
@@ -93,7 +93,7 @@ export default function WorkoutListScreen() {
                       activeCategory === cat ? 'border-gold bg-gold' : 'border-border bg-graph'
                     }`}
                   >
-                    <Text className={`font-sans-medium text-xs ${activeCategory === cat ? 'text-coal' : 'text-ivory'}`}>
+                    <Text className={`font-sans-medium text-xs ${activeCategory === cat ? 'text-on-gold' : 'text-ivory'}`}>
                       {t(`workout.categories.${cat}`)}
                     </Text>
                   </Pressable>

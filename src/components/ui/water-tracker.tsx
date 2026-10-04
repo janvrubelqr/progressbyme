@@ -6,6 +6,7 @@ import { Pressable, Text, View } from 'react-native'
 import { Confetti } from '@/components/ui/confetti'
 import { InfoToggle } from '@/components/ui/info-toggle'
 import { MiniLineChart } from '@/components/ui/mini-line-chart'
+import { useThemeColors } from '@/hooks/use-theme-colors'
 import type { WorkoutCategoryTag } from '@/lib/exercise-taxonomy'
 import { addDaysIso, formatDayLabel, getLastNDays, todayIso } from '@/lib/last-days'
 import { supabase } from '@/lib/supabase'
@@ -28,6 +29,7 @@ function formatLiters(value: number) {
 // known and refined later if/when weather resolves.
 export function WaterTracker({ className, weather }: { className?: string; weather?: CurrentWeather | null }) {
   const { t } = useTranslation()
+  const theme = useThemeColors()
   const profile = useAuthStore(state => state.profile)
   const [byDate, setByDate] = useState<Record<string, WaterIntake | null>>({})
   const [selectedDate, setSelectedDate] = useState(todayIso())
@@ -162,13 +164,13 @@ export function WaterTracker({ className, weather }: { className?: string; weath
       </View>
       <View className="mb-1 flex-row items-center justify-between">
         <Pressable onPress={() => setSelectedDate(prev => addDaysIso(prev, -1))} hitSlop={14} className="active:opacity-60">
-          <Ionicons name="chevron-back" size={16} color="#948C7D" />
+          <Ionicons name="chevron-back" size={16} color={theme.muted} />
         </Pressable>
         <Text className="text-center text-xs text-muted">
           {isToday ? t('home.bloodPressure.today') : formatDayLabel(selectedDate)}
         </Text>
         <Pressable onPress={() => setSelectedDate(prev => addDaysIso(prev, 1))} hitSlop={14} className="active:opacity-60">
-          <Ionicons name="chevron-forward" size={16} color="#948C7D" />
+          <Ionicons name="chevron-forward" size={16} color={theme.muted} />
         </Pressable>
       </View>
 
@@ -178,8 +180,8 @@ export function WaterTracker({ className, weather }: { className?: string; weath
 
       {goalReached ? (
         <View className="mb-4 mt-1.5 flex-row items-center gap-1.5">
-          <Ionicons name="checkmark-circle" size={15} color="#4CD97B" />
-          <Text className="text-xs text-[#4CD97B]">
+          <Ionicons name="checkmark-circle" size={15} color={theme.good} />
+          <Text className="text-xs text-good">
             {overLiters > 0 ? t('home.water.overGoal', { amount: formatLiters(overLiters) }) : t('home.water.goalReached')}
           </Text>
         </View>
@@ -191,7 +193,7 @@ export function WaterTracker({ className, weather }: { className?: string; weath
         <View style={{ height: BAR_HEIGHT }} className="w-6 justify-end overflow-hidden rounded-full bg-graph">
           <View
             style={{ height: `${percent}%` }}
-            className={`w-full rounded-full ${isLoading ? 'opacity-0' : goalReached ? 'bg-[#4CD97B]' : 'bg-gold'}`}
+            className={`w-full rounded-full ${isLoading ? 'opacity-0' : goalReached ? 'bg-good' : 'bg-gold'}`}
           />
         </View>
 
@@ -222,7 +224,7 @@ export function WaterTracker({ className, weather }: { className?: string; weath
           disabled={isLoading}
           className="h-11 w-11 items-center justify-center rounded-full border border-gold bg-gold active:opacity-70"
         >
-          <Text className="text-xl text-coal">+</Text>
+          <Text className="text-xl text-on-gold">+</Text>
         </Pressable>
       </View>
 

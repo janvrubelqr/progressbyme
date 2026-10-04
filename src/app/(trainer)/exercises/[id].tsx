@@ -221,7 +221,6 @@ export default function ExerciseFormScreen() {
               value={descriptions[lang]}
               onChangeText={v => setDescriptions(prev => ({ ...prev, [lang]: v }))}
               placeholder={t('trainer.exerciseLibrary.descriptionPlaceholder')}
-              placeholderTextColor="#5A564C"
               multiline
               numberOfLines={3}
               textAlignVertical="top"
@@ -266,7 +265,6 @@ export default function ExerciseFormScreen() {
             onChangeText={v => setMinAge(digitsOnly(v))}
             keyboardType="number-pad"
             placeholder={t('trainer.exerciseLibrary.minAgePlaceholder')}
-            placeholderTextColor="#5A564C"
             className="min-w-0 flex-1 rounded-md border border-border bg-graph px-4 py-3 text-base text-ivory"
           />
           <Text className="text-muted">–</Text>
@@ -275,7 +273,6 @@ export default function ExerciseFormScreen() {
             onChangeText={v => setMaxAge(digitsOnly(v))}
             keyboardType="number-pad"
             placeholder={t('trainer.exerciseLibrary.maxAgePlaceholder')}
-            placeholderTextColor="#5A564C"
             className="min-w-0 flex-1 rounded-md border border-border bg-graph px-4 py-3 text-base text-ivory"
           />
         </View>

@@ -9,16 +9,22 @@ const PALETTES = {
     card: '#FCFBF7',
     ink: '#1C1A15',
     muted: '#756C5C',
+    mutedSoft: '#C4BDAE',
+    placeholder: '#9B9284',
     border: '#C2BBAC',
     borderSoft: '#D6CFC0',
+    good: '#168E4F',
   },
   dark: {
     surface: '#0A0A0B',
     card: '#1B1B1D',
     ink: '#F2E7CF',
     muted: '#948C7D',
+    mutedSoft: '#3A362F',
+    placeholder: '#5A564C',
     border: '#2A2A2A',
     borderSoft: '#262626',
+    good: '#4CD97B',
   },
 } as const
 

@@ -9,6 +9,7 @@ import { Card } from '@/components/ui/card'
 import { ChipSelect } from '@/components/ui/chip-select'
 import { Eyebrow } from '@/components/ui/heading'
 import { TextField } from '@/components/ui/text-field'
+import { useThemeColors } from '@/hooks/use-theme-colors'
 import { WORKOUT_CATEGORIES, type WorkoutCategoryTag } from '@/lib/exercise-taxonomy'
 import { LANGUAGE_LABEL } from '@/lib/language-labels'
 import { supabase } from '@/lib/supabase'
@@ -43,6 +44,7 @@ type LibraryExercise = { id: string; name: string }
 
 export default function WorkoutBuilderScreen() {
   const { t } = useTranslation()
+  const theme = useThemeColors()
   const language = useLanguageStore(state => state.language)
   const { id: clientId } = useLocalSearchParams<{ id: string }>()
   const router = useRouter()
@@ -212,13 +214,13 @@ export default function WorkoutBuilderScreen() {
               </Text>
               <View className="flex-row items-center gap-3">
                 <Pressable onPress={() => moveExercise(index, -1)} disabled={index === 0} hitSlop={12} className="active:opacity-60">
-                  <Ionicons name="chevron-up" size={18} color={index === 0 ? '#3A362F' : '#948C7D'} />
+                  <Ionicons name="chevron-up" size={18} color={index === 0 ? theme.mutedSoft : theme.muted} />
                 </Pressable>
                 <Pressable onPress={() => moveExercise(index, 1)} disabled={index === exercises.length - 1} hitSlop={12} className="active:opacity-60">
                   <Ionicons
                     name="chevron-down"
                     size={18}
-                    color={index === exercises.length - 1 ? '#3A362F' : '#948C7D'}
+                    color={index === exercises.length - 1 ? theme.mutedSoft : theme.muted}
                   />
                 </Pressable>
                 {exercises.length > 1 ? (

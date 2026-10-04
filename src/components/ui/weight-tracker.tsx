@@ -137,8 +137,8 @@ export function WeightTracker({ className }: { className?: string }) {
       <SaveStatus state={saveState} className="mt-2" />
 
       {celebration ? (
-        <View className="mt-2 rounded-md border border-[#4CD97B]/30 bg-[#4CD97B]/10 px-2.5 py-2">
-          <Text className="text-xs leading-4 text-[#4CD97B]">{celebration.comment}</Text>
+        <View className="mt-2 rounded-md border border-good/30 bg-good/10 px-2.5 py-2">
+          <Text className="text-xs leading-4 text-good">{celebration.comment}</Text>
         </View>
       ) : null}
 
@@ -146,7 +146,7 @@ export function WeightTracker({ className }: { className?: string }) {
         <View className="mt-3 rounded-md border border-border bg-coal p-2.5">
           <View className="flex-row items-baseline justify-between">
             <Text className="font-display-medium text-[10px] uppercase tracking-[1px] text-muted">BMI</Text>
-            <Text className={`font-display-bold text-base ${category === 'normal' ? 'text-[#4CD97B]' : 'text-gold'}`}>
+            <Text className={`font-display-bold text-base ${category === 'normal' ? 'text-good' : 'text-gold'}`}>
               {bmi.toFixed(1)}
             </Text>
           </View>

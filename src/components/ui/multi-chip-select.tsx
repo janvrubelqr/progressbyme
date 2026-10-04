@@ -28,7 +28,7 @@ export function MultiChipSelect<T extends string>({
             hitSlop={6}
             className={`min-h-11 justify-center rounded-full border px-3 py-2 active:opacity-70 ${isSelected ? 'border-gold bg-gold' : 'border-border bg-graph'}`}
           >
-            <Text className={`font-sans-medium text-xs ${isSelected ? 'text-coal' : 'text-ivory'}`}>{option.label}</Text>
+            <Text className={`font-sans-medium text-xs ${isSelected ? 'text-on-gold' : 'text-ivory'}`}>{option.label}</Text>
           </Pressable>
         )
       })}

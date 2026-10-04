@@ -20,8 +20,10 @@ module.exports = {
         card: 'rgb(var(--color-card) / <alpha-value>)',
         ink: 'rgb(var(--color-ink) / <alpha-value>)',
         muted: 'rgb(var(--color-muted) / <alpha-value>)',
+        'muted-soft': 'rgb(var(--color-muted-soft) / <alpha-value>)',
         border: 'rgb(var(--color-border) / <alpha-value>)',
         'border-soft': 'rgb(var(--color-border-soft) / <alpha-value>)',
+        good: 'rgb(var(--color-good) / <alpha-value>)',
         gold: {
           DEFAULT: '#D2A85E',
           50: '#221C10',
@@ -30,6 +32,10 @@ module.exports = {
           600: '#B88332',
           rich: '#B88332',
         },
+        // Fixed dark text/icon color for content sitting on the gold fill
+        // (selected chips, primary buttons) — gold doesn't flip per theme,
+        // so this can't be `coal`/`ink`, which do.
+        'on-gold': '#0A0A0B',
         stone: {
           DEFAULT: '#D8D2C6',
           card: '#E8E4DA',

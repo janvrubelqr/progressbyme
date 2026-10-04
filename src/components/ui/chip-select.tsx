@@ -24,7 +24,7 @@ export function ChipSelect<T extends string>({
             value === option.value ? 'border-gold bg-gold' : 'border-border bg-graph'
           }`}
         >
-          <Text className={`font-sans-medium text-xs ${value === option.value ? 'text-coal' : 'text-ivory'}`}>
+          <Text className={`font-sans-medium text-xs ${value === option.value ? 'text-on-gold' : 'text-ivory'}`}>
             {option.label}
           </Text>
         </Pressable>

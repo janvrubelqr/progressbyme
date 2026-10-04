@@ -17,8 +17,11 @@
   --color-card: 252 251 247;
   --color-ink: 28 26 21;
   --color-muted: 117 108 92;
+  --color-muted-soft: 196 189 174;
+  --color-placeholder: 155 146 132;
   --color-border: 194 187 172;
   --color-border-soft: 214 207 192;
+  --color-good: 22 142 79;
 }
 
 .dark {
@@ -26,6 +29,9 @@
   --color-card: 27 27 29;
   --color-ink: 242 231 207;
   --color-muted: 148 140 125;
+  --color-muted-soft: 58 54 47;
+  --color-placeholder: 90 86 76;
   --color-border: 42 42 42;
   --color-border-soft: 38 38 38;
+  --color-good: 76 217 123;
 }

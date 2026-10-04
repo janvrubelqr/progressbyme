@@ -78,7 +78,9 @@ export default function ExerciseLibraryScreen() {
                     {thumbnail ? (
                       <Image source={{ uri: thumbnail }} className="absolute h-14 w-14" resizeMode="cover" />
                     ) : null}
-                    <View className="h-7 w-7 items-center justify-center rounded-full bg-coal/60">
+                    {/* Fixed dark badge over a video thumbnail photo — intentionally not
+                        theme-reactive, like a play button overlay on any video platform. */}
+                    <View className="h-7 w-7 items-center justify-center rounded-full bg-[#0A0A0B]/60">
                       <Ionicons name="play" size={14} color="#F2E7CF" style={{ marginLeft: 1.5 }} />
                     </View>
                   </View>

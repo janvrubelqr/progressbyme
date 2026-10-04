@@ -2,10 +2,13 @@ import { Ionicons } from '@expo/vector-icons'
 import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, Pressable, Text, View, type PressableProps } from 'react-native'
 
+import { useThemeColors } from '@/hooks/use-theme-colors'
+
 type GoogleButtonProps = Omit<PressableProps, 'children'> & { isLoading?: boolean }
 
 export function GoogleButton({ isLoading, disabled, className, ...props }: GoogleButtonProps) {
   const { t } = useTranslation()
+  const theme = useThemeColors()
 
   return (
     <Pressable
@@ -16,10 +19,10 @@ export function GoogleButton({ isLoading, disabled, className, ...props }: Googl
       {...props}
     >
       {isLoading ? (
-        <ActivityIndicator color="#F2E7CF" />
+        <ActivityIndicator color={theme.ink} />
       ) : (
         <>
-          <Ionicons name="logo-google" size={16} color="#F2E7CF" />
+          <Ionicons name="logo-google" size={16} color={theme.ink} />
           <Text className="font-display text-[13px] uppercase tracking-[1px] text-ivory">
             {t('auth.continueWithGoogle')}
           </Text>

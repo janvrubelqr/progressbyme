@@ -20,8 +20,6 @@ import { loadPersistedThemePreference, useThemeStore } from '@/stores/theme-stor
 
 SplashScreen.preventAutoHideAsync()
 
-applyDefaultTextStyle()
-
 // Lets a popup/tab-based Google auth flow report back to the opener — a
 // no-op on redirect-based flows, but recommended boilerplate either way.
 WebBrowser.maybeCompleteAuthSession()
@@ -56,6 +54,10 @@ export default function RootLayout() {
   const profile = useAuthStore(state => state.profile)
   const isInitializing = useAuthStore(state => state.isInitializing)
   const theme = useThemeColors()
+
+  useEffect(() => {
+    applyDefaultTextStyle({ ink: theme.ink, placeholder: theme.placeholder, gold: theme.gold })
+  }, [theme.ink, theme.placeholder, theme.gold])
 
   const isReady = fontsLoaded && i18nReady && themeReady && !isInitializing
 

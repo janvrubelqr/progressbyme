@@ -112,7 +112,7 @@ function RatingField({
               value === n ? 'border-gold bg-gold' : 'border-border bg-graph'
             }`}
           >
-            <Text className={`font-display-medium text-sm ${value === n ? 'text-coal' : 'text-muted'}`}>{n}</Text>
+            <Text className={`font-display-medium text-sm ${value === n ? 'text-on-gold' : 'text-muted'}`}>{n}</Text>
           </Pressable>
         ))}
       </View>

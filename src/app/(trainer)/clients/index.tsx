@@ -9,6 +9,7 @@ import { Heading } from '@/components/ui/heading'
 import { LanguageSwitcher } from '@/components/ui/language-switcher'
 import { SignOutButton } from '@/components/ui/sign-out-button'
 import { useAuth } from '@/hooks/use-auth'
+import { useThemeColors } from '@/hooks/use-theme-colors'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth-store'
 import type { ClientIntake, Profile } from '@/types/database'
@@ -17,6 +18,7 @@ type Row = { kind: 'client'; profile: Profile } | { kind: 'pending'; intake: Cli
 
 export default function ClientsListScreen() {
   const { t } = useTranslation()
+  const theme = useThemeColors()
   const profile = useAuthStore(state => state.profile)
   const { handleSignOut } = useAuth()
   const [rows, setRows] = useState<Row[]>([])
@@ -85,7 +87,7 @@ export default function ClientsListScreen() {
                 hitSlop={4}
                 className="flex-row items-center gap-1.5 rounded-full border border-border px-3 py-1.5 active:opacity-60"
               >
-                <Ionicons name="barbell-outline" size={14} color="#948C7D" />
+                <Ionicons name="barbell-outline" size={14} color={theme.muted} />
                 <Text className="font-sans-medium text-xs text-muted">{t('trainer.exerciseLibrary.manageLink')}</Text>
               </Pressable>
             </Link>

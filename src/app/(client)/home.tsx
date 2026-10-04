@@ -14,6 +14,7 @@ import { WaterTracker } from '@/components/ui/water-tracker'
 import { WeatherCard } from '@/components/ui/weather-card'
 import { WeightTracker } from '@/components/ui/weight-tracker'
 import { useAuth } from '@/hooks/use-auth'
+import { useThemeColors } from '@/hooks/use-theme-colors'
 import { useWeather } from '@/hooks/use-weather'
 import { toDateLocale } from '@/lib/date-locale'
 import { todayIso } from '@/lib/last-days'
@@ -27,6 +28,7 @@ type WorkoutRow = Workout & { displayTitle: string }
 
 export default function HomeScreen() {
   const { t } = useTranslation()
+  const theme = useThemeColors()
   const language = useLanguageStore(state => state.language)
   const profile = useAuthStore(state => state.profile)
   const { handleSignOut } = useAuth()
@@ -74,7 +76,7 @@ export default function HomeScreen() {
             hitSlop={6}
             className="h-9 w-9 items-center justify-center rounded-full border border-border active:opacity-60"
           >
-            <Ionicons name="settings-outline" size={16} color="#948C7D" />
+            <Ionicons name="settings-outline" size={16} color={theme.muted} />
           </Pressable>
         </Link>
         <SignOutButton onPress={handleSignOut} />

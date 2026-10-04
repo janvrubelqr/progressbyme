@@ -89,7 +89,9 @@ export default function WorkoutDetailScreen() {
                     {thumbnail ? (
                       <Image source={{ uri: thumbnail }} className="absolute h-16 w-16" resizeMode="cover" />
                     ) : null}
-                    <View className="h-8 w-8 items-center justify-center rounded-full bg-coal/60">
+                    {/* Fixed dark badge over a video thumbnail photo — intentionally not
+                        theme-reactive, like a play button overlay on any video platform. */}
+                    <View className="h-8 w-8 items-center justify-center rounded-full bg-[#0A0A0B]/60">
                       <Ionicons name="play" size={16} color="#F2E7CF" style={{ marginLeft: 2 }} />
                     </View>
                   </Pressable>

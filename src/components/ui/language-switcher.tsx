@@ -17,7 +17,7 @@ export function LanguageSwitcher({ className }: { className?: string }) {
           hitSlop={6}
           className={`min-h-9 min-w-9 items-center justify-center rounded px-2 py-1 active:opacity-70 ${language === code ? 'bg-gold' : 'bg-graph'}`}
         >
-          <Text className={`font-display-medium text-[10px] tracking-[1px] ${language === code ? 'text-coal' : 'text-muted'}`}>
+          <Text className={`font-display-medium text-[10px] tracking-[1px] ${language === code ? 'text-on-gold' : 'text-muted'}`}>
             {LABELS[code]}
           </Text>
         </Pressable>

@@ -122,7 +122,6 @@ export default function ProfileScreen() {
           value={fullName}
           onChangeText={setFullName}
           placeholder={t('profile.fullNamePlaceholder')}
-          placeholderTextColor="#5A564C"
           className="mb-4 rounded-md border border-border bg-graph px-4 py-3 text-base text-ivory"
         />
 
@@ -137,7 +136,6 @@ export default function ProfileScreen() {
           onChangeText={setPhone}
           keyboardType="phone-pad"
           placeholder={t('profile.phonePlaceholder')}
-          placeholderTextColor="#5A564C"
           className="mb-4 rounded-md border border-border bg-graph px-4 py-3 text-base text-ivory"
         />
 
@@ -148,7 +146,6 @@ export default function ProfileScreen() {
           value={dateOfBirth}
           onChangeText={setDateOfBirth}
           placeholder={t('profile.dateOfBirthPlaceholder')}
-          placeholderTextColor="#5A564C"
           className="mb-4 rounded-md border border-border bg-graph px-4 py-3 text-base text-ivory"
         />
 
@@ -163,7 +160,6 @@ export default function ProfileScreen() {
           onChangeText={v => setHeightCm(digitsOnly(v))}
           keyboardType="number-pad"
           placeholder={t('profile.heightPlaceholder')}
-          placeholderTextColor="#5A564C"
           className="mb-4 rounded-md border border-border bg-graph px-4 py-3 text-base text-ivory"
         />
 
@@ -182,7 +178,6 @@ export default function ProfileScreen() {
           value={healthConditions}
           onChangeText={setHealthConditions}
           placeholder={t('profile.healthConditionsPlaceholder')}
-          placeholderTextColor="#5A564C"
           multiline
           numberOfLines={3}
           className="mb-4 h-20 rounded-md border border-border bg-graph px-4 py-3 text-base text-ivory"
@@ -196,7 +191,6 @@ export default function ProfileScreen() {
           value={dietaryRestrictions}
           onChangeText={setDietaryRestrictions}
           placeholder={t('profile.dietaryRestrictionsPlaceholder')}
-          placeholderTextColor="#5A564C"
           multiline
           numberOfLines={3}
           className="mb-4 h-20 rounded-md border border-border bg-graph px-4 py-3 text-base text-ivory"

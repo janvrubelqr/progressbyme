@@ -153,7 +153,6 @@ export default function AddClientScreen() {
           value={notes}
           onChangeText={setNotes}
           placeholder={t('trainer.addClient.notesPlaceholder')}
-          placeholderTextColor="#5A564C"
           multiline
           numberOfLines={3}
           textAlignVertical="top"

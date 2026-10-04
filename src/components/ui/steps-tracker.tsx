@@ -125,8 +125,8 @@ export function StepsTracker({ className }: { className?: string }) {
       <SaveStatus state={saveState} className="mt-2" />
 
       {celebration ? (
-        <View className="mt-2 rounded-md border border-[#4CD97B]/30 bg-[#4CD97B]/10 px-2.5 py-2">
-          <Text className="text-xs leading-4 text-[#4CD97B]">{celebration.comment}</Text>
+        <View className="mt-2 rounded-md border border-good/30 bg-good/10 px-2.5 py-2">
+          <Text className="text-xs leading-4 text-good">{celebration.comment}</Text>
         </View>
       ) : null}
 

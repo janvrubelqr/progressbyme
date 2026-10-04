@@ -21,7 +21,7 @@ export function Button({ label, variant = 'primary', isLoading, disabled, classN
         <ActivityIndicator color={isGhost ? '#D2A85E' : '#0A0A0B'} />
       ) : (
         <Text
-          className={`font-display text-[13px] uppercase tracking-[2px] ${isGhost ? 'text-gold' : 'text-coal'}`}
+          className={`font-display text-[13px] uppercase tracking-[2px] ${isGhost ? 'text-gold' : 'text-on-gold'}`}
         >
           {label}
         </Text>

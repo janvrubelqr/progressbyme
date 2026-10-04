@@ -7,6 +7,7 @@ import { Pressable, Text, TextInput, View } from 'react-native'
 import { Confetti } from '@/components/ui/confetti'
 import { MiniLineChart } from '@/components/ui/mini-line-chart'
 import { SaveStatus, type SaveState } from '@/components/ui/save-status'
+import { useThemeColors } from '@/hooks/use-theme-colors'
 import { digitsOnly } from '@/lib/digits-only'
 import { addDaysIso, formatDayLabel, getLastNDays, todayIso } from '@/lib/last-days'
 import { supabase } from '@/lib/supabase'
@@ -19,6 +20,7 @@ const SAVE_DELAY_MS = 700
 
 export function BloodPressureTracker({ className }: { className?: string }) {
   const { t } = useTranslation()
+  const theme = useThemeColors()
   const profile = useAuthStore(state => state.profile)
   const [byDate, setByDate] = useState<Record<string, BloodPressureLog | null>>({})
   const [selectedDate, setSelectedDate] = useState(todayIso())
@@ -146,13 +148,13 @@ export function BloodPressureTracker({ className }: { className?: string }) {
       </Text>
       <View className="mb-1 flex-row items-center justify-between">
         <Pressable onPress={() => setSelectedDate(prev => addDaysIso(prev, -1))} hitSlop={14} className="active:opacity-60">
-          <Ionicons name="chevron-back" size={16} color="#948C7D" />
+          <Ionicons name="chevron-back" size={16} color={theme.muted} />
         </Pressable>
         <Text className="text-center text-xs text-muted">
           {isToday ? t('home.bloodPressure.today') : formatDayLabel(selectedDate)}
         </Text>
         <Pressable onPress={() => setSelectedDate(prev => addDaysIso(prev, 1))} disabled={isToday} hitSlop={14} className="active:opacity-60">
-          <Ionicons name="chevron-forward" size={16} color={isToday ? '#3A362F' : '#948C7D'} />
+          <Ionicons name="chevron-forward" size={16} color={isToday ? theme.mutedSoft : theme.muted} />
         </Pressable>
       </View>
 
@@ -189,7 +191,7 @@ export function BloodPressureTracker({ className }: { className?: string }) {
             <Ionicons
               name={openInfo === 'systolic' ? 'information-circle' : 'information-circle-outline'}
               size={14}
-              color="#948C7D"
+              color={theme.muted}
             />
           </Pressable>
         </View>
@@ -216,7 +218,7 @@ export function BloodPressureTracker({ className }: { className?: string }) {
             <Ionicons
               name={openInfo === 'diastolic' ? 'information-circle' : 'information-circle-outline'}
               size={14}
-              color="#948C7D"
+              color={theme.muted}
             />
           </Pressable>
         </View>
@@ -243,7 +245,7 @@ export function BloodPressureTracker({ className }: { className?: string }) {
             <Ionicons
               name={openInfo === 'pulse' ? 'information-circle' : 'information-circle-outline'}
               size={14}
-              color="#948C7D"
+              color={theme.muted}
             />
           </Pressable>
         </View>
@@ -262,8 +264,8 @@ export function BloodPressureTracker({ className }: { className?: string }) {
       )}
 
       {celebration ? (
-        <View className="mt-2 rounded-md border border-[#4CD97B]/30 bg-[#4CD97B]/10 px-2.5 py-2">
-          <Text className="text-xs leading-4 text-[#4CD97B]">{celebration.comment}</Text>
+        <View className="mt-2 rounded-md border border-good/30 bg-good/10 px-2.5 py-2">
+          <Text className="text-xs leading-4 text-good">{celebration.comment}</Text>
         </View>
       ) : null}
 

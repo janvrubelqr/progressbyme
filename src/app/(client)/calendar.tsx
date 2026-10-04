@@ -108,7 +108,7 @@ export default function CalendarScreen() {
             onPress={() => setMode('month')}
             className={`min-h-9 justify-center px-3 py-1.5 active:opacity-80 ${mode === 'month' ? 'bg-gold' : 'bg-graph'}`}
           >
-            <Text className={`font-sans-medium text-xs ${mode === 'month' ? 'text-coal' : 'text-muted'}`}>
+            <Text className={`font-sans-medium text-xs ${mode === 'month' ? 'text-on-gold' : 'text-muted'}`}>
               {t('calendar.monthView')}
             </Text>
           </Pressable>
@@ -116,7 +116,7 @@ export default function CalendarScreen() {
             onPress={() => setMode('list')}
             className={`min-h-9 justify-center px-3 py-1.5 active:opacity-80 ${mode === 'list' ? 'bg-gold' : 'bg-graph'}`}
           >
-            <Text className={`font-sans-medium text-xs ${mode === 'list' ? 'text-coal' : 'text-muted'}`}>
+            <Text className={`font-sans-medium text-xs ${mode === 'list' ? 'text-on-gold' : 'text-muted'}`}>
               {t('calendar.listView')}
             </Text>
           </Pressable>
