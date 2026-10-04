@@ -9,6 +9,7 @@ import { MessageBanner, type Message } from '@/components/ui/message-banner'
 import { digitsOnly } from '@/lib/digits-only'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth-store'
+import { type ThemePreference, useThemeStore } from '@/stores/theme-store'
 import type { ActivityLevel, FitnessGoal, Sex } from '@/types/database'
 
 export default function ProfileScreen() {
@@ -16,6 +17,8 @@ export default function ProfileScreen() {
   const profile = useAuthStore(state => state.profile)
   const setProfile = useAuthStore(state => state.setProfile)
   const email = useAuthStore(state => state.user)?.email
+  const themePreference = useThemeStore(state => state.preference)
+  const setThemePreference = useThemeStore(state => state.setPreference)
 
   const [fullName, setFullName] = useState('')
   const [phone, setPhone] = useState('')
@@ -53,6 +56,12 @@ export default function ProfileScreen() {
     { value: 'gain_muscle', label: t('profile.goalGainMuscle') },
     { value: 'maintain', label: t('profile.goalMaintain') },
     { value: 'improve_endurance', label: t('profile.goalImproveEndurance') },
+  ]
+
+  const themeOptions: { value: ThemePreference; label: string }[] = [
+    { value: 'system', label: t('profile.themeSystem') },
+    { value: 'light', label: t('profile.themeLight') },
+    { value: 'dark', label: t('profile.themeDark') },
   ]
 
   const activityOptions: { value: ActivityLevel; label: string }[] = [
@@ -104,6 +113,9 @@ export default function ProfileScreen() {
           {t('profile.title')}
         </Heading>
         <Text className="mb-6 text-sm text-muted">{t('profile.subtitle')}</Text>
+
+        <Text className="mb-1.5 font-sans-medium text-xs uppercase tracking-[1px] text-muted">{t('profile.themeLabel')}</Text>
+        <ChipSelect options={themeOptions} value={themePreference} onChange={setThemePreference} className="mb-6" />
 
         <Text className="mb-1.5 font-sans-medium text-xs uppercase tracking-[1px] text-muted">{t('profile.fullNameLabel')}</Text>
         <TextInput

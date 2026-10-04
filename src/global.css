@@ -10,4 +10,22 @@
     ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
   --font-rounded: 'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif;
   --font-serif: Georgia, 'Times New Roman', serif;
+
+  /* Light theme (default). Values are "R G B" so Tailwind's
+     rgb(var(--x) / <alpha-value>) opacity syntax works. */
+  --color-surface: 245 242 234;
+  --color-card: 252 251 247;
+  --color-ink: 28 26 21;
+  --color-muted: 117 108 92;
+  --color-border: 194 187 172;
+  --color-border-soft: 214 207 192;
+}
+
+.dark {
+  --color-surface: 10 10 11;
+  --color-card: 27 27 29;
+  --color-ink: 242 231 207;
+  --color-muted: 148 140 125;
+  --color-border: 42 42 42;
+  --color-border-soft: 38 38 38;
 }

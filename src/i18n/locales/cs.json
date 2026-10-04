@@ -175,6 +175,10 @@
   "profile": {
     "title": "Můj účet",
     "subtitle": "Tyhle údaje pomáhají trenérovi lépe nastavit tréninky a jídelníček.",
+    "themeLabel": "Vzhled",
+    "themeSystem": "Podle telefonu",
+    "themeLight": "Světlý",
+    "themeDark": "Tmavý",
     "save": "Uložit profil",
     "saveSuccessTitle": "Hotovo",
     "saveSuccess": "Profil byl uložen",
@@ -241,7 +245,15 @@
     "monthView": "Měsíc",
     "listView": "Seznam",
     "empty": "Tento měsíc nemáš žádné tréninky",
-    "weekdays": ["Po", "Út", "St", "Čt", "Pá", "So", "Ne"]
+    "weekdays": [
+      "Po",
+      "Út",
+      "St",
+      "Čt",
+      "Pá",
+      "So",
+      "Ne"
+    ]
   },
   "clientExercises": {
     "title": "Knihovna cviků",

@@ -12,9 +12,11 @@ import { SafeAreaProvider } from 'react-native-safe-area-context'
 
 import { GlobalLanguageSwitcher } from '@/components/ui/global-language-switcher'
 import { useAuthSession } from '@/hooks/use-auth-session'
+import { useThemeColors } from '@/hooks/use-theme-colors'
 import { initI18n } from '@/i18n'
 import { applyDefaultTextStyle } from '@/lib/apply-default-text-style'
 import { useAuthStore } from '@/stores/auth-store'
+import { loadPersistedThemePreference, useThemeStore } from '@/stores/theme-store'
 
 SplashScreen.preventAutoHideAsync()
 
@@ -41,11 +43,21 @@ export default function RootLayout() {
     initI18n().then(() => setI18nReady(true))
   }, [])
 
+  const setThemePreference = useThemeStore(state => state.setPreference)
+  const [themeReady, setThemeReady] = useState(false)
+  useEffect(() => {
+    loadPersistedThemePreference().then(preference => {
+      setThemePreference(preference)
+      setThemeReady(true)
+    })
+  }, [setThemePreference])
+
   const session = useAuthStore(state => state.session)
   const profile = useAuthStore(state => state.profile)
   const isInitializing = useAuthStore(state => state.isInitializing)
+  const theme = useThemeColors()
 
-  const isReady = fontsLoaded && i18nReady && !isInitializing
+  const isReady = fontsLoaded && i18nReady && themeReady && !isInitializing
 
   useEffect(() => {
     if (isReady) {
@@ -59,8 +71,8 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <StatusBar style="light" />
-      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#0A0A0B' } }}>
+      <StatusBar style={theme.scheme === 'light' ? 'dark' : 'light'} />
+      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.surface } }}>
         <Stack.Screen name="index" />
 
         <Stack.Protected guard={!session}>

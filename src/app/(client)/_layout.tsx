@@ -2,18 +2,21 @@ import { Ionicons } from '@expo/vector-icons'
 import { Tabs } from 'expo-router'
 import { useTranslation } from 'react-i18next'
 
+import { useThemeColors } from '@/hooks/use-theme-colors'
+
 export default function ClientTabsLayout() {
   const { t } = useTranslation()
+  const theme = useThemeColors()
 
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#D2A85E',
-        tabBarInactiveTintColor: '#6B6459',
+        tabBarActiveTintColor: theme.gold,
+        tabBarInactiveTintColor: theme.muted,
         tabBarStyle: {
-          backgroundColor: '#0A0A0B',
-          borderTopColor: '#1B1B1D',
+          backgroundColor: theme.surface,
+          borderTopColor: theme.border,
         },
         tabBarLabelStyle: {
           fontFamily: 'Oswald_500Medium',

@@ -175,6 +175,10 @@
   "profile": {
     "title": "My Account",
     "subtitle": "This info helps your trainer set up your training and nutrition plans better.",
+    "themeLabel": "Appearance",
+    "themeSystem": "System",
+    "themeLight": "Light",
+    "themeDark": "Dark",
     "save": "Save profile",
     "saveSuccessTitle": "Done",
     "saveSuccess": "Profile saved",
@@ -241,7 +245,15 @@
     "monthView": "Month",
     "listView": "List",
     "empty": "You don't have any workouts this month",
-    "weekdays": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    "weekdays": [
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri",
+      "Sat",
+      "Sun"
+    ]
   },
   "clientExercises": {
     "title": "Exercise Library",

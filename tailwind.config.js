@@ -6,9 +6,22 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Progress by David brand tokens (progressbydavid.cz)
-        coal: '#0A0A0B',
-        graph: '#1B1B1D',
+        // Progress by David brand tokens (progressbydavid.cz).
+        // coal/graph/ivory/border(-soft) and their surface/card/ink/muted
+        // aliases all resolve through CSS variables defined in global.css,
+        // so they automatically swap between the light and dark palette —
+        // every screen still using bg-coal/text-ivory/etc. gets theming for
+        // free, no per-screen edits needed. gold and stone stay fixed: the
+        // brand accent and the light-neutral family don't flip per theme.
+        coal: 'rgb(var(--color-surface) / <alpha-value>)',
+        graph: 'rgb(var(--color-card) / <alpha-value>)',
+        ivory: 'rgb(var(--color-ink) / <alpha-value>)',
+        surface: 'rgb(var(--color-surface) / <alpha-value>)',
+        card: 'rgb(var(--color-card) / <alpha-value>)',
+        ink: 'rgb(var(--color-ink) / <alpha-value>)',
+        muted: 'rgb(var(--color-muted) / <alpha-value>)',
+        border: 'rgb(var(--color-border) / <alpha-value>)',
+        'border-soft': 'rgb(var(--color-border-soft) / <alpha-value>)',
         gold: {
           DEFAULT: '#D2A85E',
           50: '#221C10',
@@ -17,19 +30,12 @@ module.exports = {
           600: '#B88332',
           rich: '#B88332',
         },
-        ivory: '#F2E7CF',
         stone: {
           DEFAULT: '#D8D2C6',
           card: '#E8E4DA',
           line: '#C2BBAC',
           gold: '#8A6A28',
         },
-        border: '#2A2A2A',
-        'border-soft': '#262626',
-        surface: '#0A0A0B',
-        card: '#1B1B1D',
-        ink: '#F2E7CF',
-        muted: '#948C7D',
       },
       fontFamily: {
         display: ['Oswald_600SemiBold'],
