@@ -24,7 +24,9 @@ import {
   type MuscleGroup,
 } from '@/lib/exercise-taxonomy'
 import { LANGUAGE_LABEL } from '@/lib/language-labels'
+import { isWeightSumValid, sumExerciseWeights } from '@/lib/muscle-load'
 import { supabase } from '@/lib/supabase'
+import type { ExerciseMuscleWeight } from '@/types/database'
 import { SUPPORTED_LANGUAGES, type LanguageCode } from '@/stores/language-store'
 
 const EMPTY_TEXT: Record<LanguageCode, string> = { cs: '', en: '', sk: '' }
@@ -41,6 +43,10 @@ export default function ExerciseFormScreen() {
   const [videos, setVideos] = useState<Record<LanguageCode, string>>(EMPTY_TEXT)
 
   const [muscleGroups, setMuscleGroups] = useState<MuscleGroup[]>([])
+  // Percent strings ("60" = 60%) keyed by muscle, only for muscles currently
+  // in `muscleGroups` — kept separate from the tag list itself since not
+  // every selected muscle group necessarily has a weight assigned yet.
+  const [muscleWeights, setMuscleWeights] = useState<Record<string, string>>({})
   const [movementType, setMovementType] = useState<MovementType | null>(null)
   const [difficulty, setDifficulty] = useState<DifficultyLevel | null>(null)
   const [equipment, setEquipment] = useState<EquipmentType | null>(null)
@@ -58,7 +64,7 @@ export default function ExerciseFormScreen() {
     supabase
       .from('exercises')
       .select(
-        'slug, muscle_groups, movement_type, difficulty, equipment, min_age, max_age, contraindications, exercise_translations(language_code, name, description, video_url)'
+        'slug, muscle_groups, movement_type, difficulty, equipment, min_age, max_age, contraindications, exercise_translations(language_code, name, description, video_url), exercise_muscle_weights(muscle, weight)'
       )
       .eq('id', id)
       .single()
@@ -69,6 +75,11 @@ export default function ExerciseFormScreen() {
         }
         setSlug(data.slug)
         setMuscleGroups((data.muscle_groups ?? []) as MuscleGroup[])
+        const nextWeights: Record<string, string> = {}
+        for (const row of (data.exercise_muscle_weights ?? []) as ExerciseMuscleWeight[]) {
+          nextWeights[row.muscle] = String(Math.round(row.weight * 100))
+        }
+        setMuscleWeights(nextWeights)
         setMovementType(data.movement_type as MovementType | null)
         setDifficulty(data.difficulty as DifficultyLevel | null)
         setEquipment(data.equipment as EquipmentType | null)
@@ -151,9 +162,26 @@ export default function ExerciseFormScreen() {
       .from('exercise_translations')
       .upsert(rows, { onConflict: 'exercise_id,language_code' })
 
+    // Muscle weights have no stable per-row id to upsert against from this
+    // form, so replace the whole set for this exercise — simplest way to
+    // also handle a muscle being deselected or its weight cleared to empty.
+    const weightRows = muscleGroups
+      .map(muscle => ({ exercise_id: exerciseId, muscle, weight: Number(muscleWeights[muscle] ?? 0) / 100 }))
+      .filter(row => row.weight > 0)
+
+    const { error: deleteWeightsError } = await supabase
+      .from('exercise_muscle_weights')
+      .delete()
+      .eq('exercise_id', exerciseId)
+
+    const { error: weightsError } =
+      !deleteWeightsError && weightRows.length > 0
+        ? await supabase.from('exercise_muscle_weights').insert(weightRows)
+        : { error: deleteWeightsError }
+
     setIsSaving(false)
 
-    if (translationsError) {
+    if (translationsError || weightsError) {
       setMessage({ type: 'error', text: t('trainer.exerciseLibrary.saveError') })
       return
     }
@@ -169,6 +197,12 @@ export default function ExerciseFormScreen() {
   if (isLoading) {
     return <View className="flex-1 bg-coal" />
   }
+
+  const activeWeights = muscleGroups
+    .map(muscle => ({ muscle, weight: Number(muscleWeights[muscle] ?? 0) / 100 }))
+    .filter(w => w.weight > 0) as ExerciseMuscleWeight[]
+  const weightSumPercent = Math.round(sumExerciseWeights(activeWeights) * 100)
+  const weightSumValid = activeWeights.length === 0 || isWeightSumValid(activeWeights)
 
   const muscleGroupOptions = MUSCLE_GROUPS.map(v => ({ value: v, label: t(`trainer.exerciseLibrary.muscleGroups.${v}`) }))
   const movementTypeOptions = MOVEMENT_TYPES.map(v => ({ value: v, label: t(`trainer.exerciseLibrary.movementTypes.${v}`) }))
@@ -239,7 +273,34 @@ export default function ExerciseFormScreen() {
         <Text className="mb-1.5 mt-2 font-sans-medium text-xs uppercase tracking-[1px] text-muted">
           {t('trainer.exerciseLibrary.muscleGroupsLabel')}
         </Text>
-        <MultiChipSelect options={muscleGroupOptions} values={muscleGroups} onChange={setMuscleGroups} className="mb-4" />
+        <MultiChipSelect options={muscleGroupOptions} values={muscleGroups} onChange={setMuscleGroups} className="mb-3" />
+
+        {muscleGroups.length > 0 ? (
+          <View className="mb-4 rounded-md border border-border bg-graph p-3">
+            <Text className="mb-2.5 font-sans-medium text-xs uppercase tracking-[1px] text-muted">
+              {t('trainer.exerciseLibrary.muscleWeightsLabel')}
+            </Text>
+            {muscleGroups.map(muscle => (
+              <View key={muscle} className="mb-2 flex-row items-center justify-between gap-3 last:mb-0">
+                <Text className="flex-1 text-sm text-ivory">{t(`trainer.exerciseLibrary.muscleGroups.${muscle}`)}</Text>
+                <View className="flex-row items-center gap-1.5">
+                  <TextInput
+                    value={muscleWeights[muscle] ?? ''}
+                    onChangeText={v => setMuscleWeights(prev => ({ ...prev, [muscle]: digitsOnly(v).slice(0, 3) }))}
+                    keyboardType="number-pad"
+                    placeholder="0"
+                    className="w-14 rounded-md border border-border bg-coal px-2 py-1.5 text-right text-sm text-ivory"
+                  />
+                  <Text className="text-sm text-muted">%</Text>
+                </View>
+              </View>
+            ))}
+            <Text className={`mt-2.5 text-xs ${weightSumValid ? 'text-muted' : 'text-amber-400'}`}>
+              {t('trainer.exerciseLibrary.muscleWeightsSum', { percent: weightSumPercent })}
+              {!weightSumValid ? ` · ${t('trainer.exerciseLibrary.muscleWeightsSumWarning')}` : ''}
+            </Text>
+          </View>
+        ) : null}
 
         <Text className="mb-1.5 font-sans-medium text-xs uppercase tracking-[1px] text-muted">
           {t('trainer.exerciseLibrary.movementTypeLabel')}

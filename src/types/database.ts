@@ -69,6 +69,15 @@ export type Exercise = {
   created_at: string
 }
 
+export type ExerciseMuscleWeight = {
+  id: string
+  exercise_id: string
+  // One of MUSCLE_GROUPS in @/lib/exercise-taxonomy.
+  muscle: string
+  // Relative share (0–1] of this exercise's load this muscle absorbs.
+  weight: number
+}
+
 export type ExerciseTranslation = {
   id: string
   exercise_id: string

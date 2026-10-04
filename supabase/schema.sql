@@ -85,6 +85,19 @@ create table exercise_translations (
   unique (exercise_id, language_code)
 );
 
+-- Weighted muscle impact per exercise — "this exercise loads quads at 0.6,
+-- glutes at 0.3, lower_back at 0.1" — for the training engine's daily
+-- per-muscle load calculation. Additive on top of exercises.muscle_groups,
+-- which stays as the flat tag list used for simple display/filtering.
+create table exercise_muscle_weights (
+  id uuid primary key default gen_random_uuid(),
+  exercise_id uuid not null references exercises (id) on delete cascade,
+  -- One of MUSCLE_GROUPS in src/lib/exercise-taxonomy.ts.
+  muscle text not null,
+  weight numeric not null check (weight > 0 and weight <= 1),
+  unique (exercise_id, muscle)
+);
+
 -- Per-language workout titles, mirroring exercise_translations. workouts.title
 -- stays as the fallback shown when a language has no translation yet (e.g.
 -- workouts created before this table existed).
@@ -273,6 +286,7 @@ grant execute on function user_exists_with_email(text) to authenticated, service
 alter table profiles enable row level security;
 alter table exercises enable row level security;
 alter table exercise_translations enable row level security;
+alter table exercise_muscle_weights enable row level security;
 alter table workouts enable row level security;
 alter table workout_exercises enable row level security;
 alter table workout_logs enable row level security;
@@ -323,6 +337,13 @@ create policy "exercise_translations_select_all" on exercise_translations
   for select using (true);
 
 create policy "exercise_translations_write_trainer" on exercise_translations
+  for all using (is_trainer())
+  with check (is_trainer());
+
+create policy "exercise_muscle_weights_select_all" on exercise_muscle_weights
+  for select using (true);
+
+create policy "exercise_muscle_weights_write_trainer" on exercise_muscle_weights
   for all using (is_trainer())
   with check (is_trainer());
 
@@ -516,4 +537,4 @@ grant select, insert, update, delete on
   nutrition_plans, meals, meal_items, check_ins, check_in_photos, water_intake,
   weight_logs, step_logs, blood_pressure_logs, client_intake
 to authenticated;
-grant select, insert, update, delete on exercises, exercise_translations, foods to authenticated;
+grant select, insert, update, delete on exercises, exercise_translations, foods, exercise_muscle_weights to authenticated;
