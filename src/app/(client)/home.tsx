@@ -8,7 +8,6 @@ import { BloodPressureTracker } from '@/components/ui/blood-pressure-tracker'
 import { Card } from '@/components/ui/card'
 import { Eyebrow } from '@/components/ui/heading'
 import { LanguageSwitcher } from '@/components/ui/language-switcher'
-import { RoleSwitch } from '@/components/ui/role-switch'
 import { SignOutButton } from '@/components/ui/sign-out-button'
 import { StepsTracker } from '@/components/ui/steps-tracker'
 import { WaterTracker } from '@/components/ui/water-tracker'
@@ -70,7 +69,6 @@ export default function HomeScreen() {
     >
       <View className="flex-row flex-wrap items-center justify-end gap-2 pt-16">
         <LanguageSwitcher />
-        <RoleSwitch />
         <Link href="/(client)/profile" asChild>
           <Pressable
             hitSlop={6}

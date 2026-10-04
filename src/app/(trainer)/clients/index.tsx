@@ -7,7 +7,6 @@ import { ActivityIndicator, FlatList, Pressable, Text, View } from 'react-native
 import { Card } from '@/components/ui/card'
 import { Heading } from '@/components/ui/heading'
 import { LanguageSwitcher } from '@/components/ui/language-switcher'
-import { RoleSwitch } from '@/components/ui/role-switch'
 import { SignOutButton } from '@/components/ui/sign-out-button'
 import { useAuth } from '@/hooks/use-auth'
 import { supabase } from '@/lib/supabase'
@@ -66,7 +65,6 @@ export default function ClientsListScreen() {
         <View className="mb-6">
           <View className="flex-row flex-wrap items-center justify-end gap-2">
             <LanguageSwitcher />
-            <RoleSwitch />
             <SignOutButton onPress={handleSignOut} />
           </View>
 
