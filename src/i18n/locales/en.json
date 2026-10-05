@@ -491,5 +491,21 @@
       "saveSuccessTitle": "Done",
       "saveSuccess": "Nutrition plan created"
     }
+  },
+  "onboarding": {
+    "eyebrow": "Step {{current}} of {{total}}",
+    "goalTitle": "What's your main goal?",
+    "goalSubtitle": "We'll shape your training and nutrition around it.",
+    "experienceTitle": "How experienced are you with training?",
+    "experienceSubtitle": "Helps us pick the right difficulty for your exercises.",
+    "equipmentTitle": "What equipment do you have access to?",
+    "equipmentSubtitle": "Pick as many as apply — you can change this later in settings.",
+    "daysTitle": "How many days a week do you want to train?",
+    "daysSubtitle": "A realistic number beats an ambitious one you won't stick to.",
+    "injuriesTitle": "Any injuries or limitations?",
+    "injuriesSubtitle": "Optional — helps us avoid exercises that could hurt you.",
+    "back": "Back",
+    "next": "Continue",
+    "finish": "Finish"
   }
 }

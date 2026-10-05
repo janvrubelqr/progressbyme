@@ -491,5 +491,21 @@
       "saveSuccessTitle": "Hotovo",
       "saveSuccess": "Jedálniček bol vytvorený"
     }
+  },
+  "onboarding": {
+    "eyebrow": "Krok {{current}} z {{total}}",
+    "goalTitle": "Aký je tvoj hlavný cieľ?",
+    "goalSubtitle": "Podľa toho ti poskladáme tréning aj jedálniček.",
+    "experienceTitle": "Aké máš skúsenosti s cvičením?",
+    "experienceSubtitle": "Pomôže nám to vybrať vhodnú obtiažnosť cvikov.",
+    "equipmentTitle": "Aké vybavenie máš k dispozícii?",
+    "equipmentSubtitle": "Pokojne vyber viac možností. Neskôr to môžeš zmeniť v nastaveniach.",
+    "daysTitle": "Koľko dní týždenne chceš trénovať?",
+    "daysSubtitle": "Realistický počet je lepší než ambiciózny, ktorý nevydržíš.",
+    "injuriesTitle": "Máš nejaké zranenia alebo obmedzenia?",
+    "injuriesSubtitle": "Nepovinné — pomôže nám to vyhnúť sa cvikom, ktoré by ti mohli ublížiť.",
+    "back": "Späť",
+    "next": "Pokračovať",
+    "finish": "Dokončiť"
   }
 }

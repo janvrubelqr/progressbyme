@@ -18,6 +18,15 @@ create table profiles (
   health_conditions text,
   dietary_restrictions text,
   phone text,
+  -- Structured onboarding fields for the training engine. injury_tags is
+  -- the structured counterpart to health_conditions (free text) — matched
+  -- against exercises.contraindications.
+  experience_level text,
+  equipment_access text[] not null default '{}',
+  injury_tags text[] not null default '{}',
+  training_days_per_week smallint,
+  preferred_categories text[] not null default '{}',
+  onboarding_completed_at timestamptz,
   created_at timestamptz not null default now()
 );
 

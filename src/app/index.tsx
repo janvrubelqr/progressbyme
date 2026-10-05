@@ -15,6 +15,9 @@ export default function Index() {
     if (profile.role === 'trainer') {
       return <Redirect href="/(trainer)/clients" />
     }
+    if (!profile.onboarding_completed_at) {
+      return <Redirect href="/onboarding" />
+    }
     return <Redirect href="/(client)/home" />
   }
 

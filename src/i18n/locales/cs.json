@@ -491,5 +491,21 @@
       "saveSuccessTitle": "Hotovo",
       "saveSuccess": "Jídelníček byl vytvořen"
     }
+  },
+  "onboarding": {
+    "eyebrow": "Krok {{current}} z {{total}}",
+    "goalTitle": "Jaký je tvůj hlavní cíl?",
+    "goalSubtitle": "Podle toho ti poskládáme trénink i jídelníček.",
+    "experienceTitle": "Jaké máš zkušenosti s cvičením?",
+    "experienceSubtitle": "Pomůže nám to vybrat vhodnou obtížnost cviků.",
+    "equipmentTitle": "Jaké vybavení máš k dispozici?",
+    "equipmentSubtitle": "Klidně vyber víc možností. Později to můžeš změnit v nastavení.",
+    "daysTitle": "Kolik dní týdně chceš trénovat?",
+    "daysSubtitle": "Realistický počet je lepší než ambiciózní, který nevydržíš.",
+    "injuriesTitle": "Máš nějaká zranění nebo omezení?",
+    "injuriesSubtitle": "Nepovinné — pomůže nám to vyhnout se cvikům, které by ti mohly ublížit.",
+    "back": "Zpět",
+    "next": "Pokračovat",
+    "finish": "Dokončit"
   }
 }

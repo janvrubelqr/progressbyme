@@ -82,6 +82,10 @@ export default function RootLayout() {
           <Stack.Screen name="signup" />
         </Stack.Protected>
 
+        <Stack.Protected guard={!!session && profile?.role === 'client' && !profile?.onboarding_completed_at}>
+          <Stack.Screen name="onboarding" />
+        </Stack.Protected>
+
         <Stack.Protected guard={!!session && profile?.role === 'client'}>
           <Stack.Screen name="(client)" />
         </Stack.Protected>

@@ -17,6 +17,18 @@ export type Profile = {
   health_conditions: string | null
   dietary_restrictions: string | null
   phone: string | null
+  // Structured onboarding fields the training engine reads from — see
+  // src/app/onboarding.tsx. experience_level is one of DIFFICULTY_LEVELS,
+  // equipment_access of EQUIPMENT_TYPES, preferred_categories of
+  // WORKOUT_CATEGORIES, injury_tags of CONTRAINDICATION_TAGS (all in
+  // @/lib/exercise-taxonomy) — kept as plain string[] here, same
+  // controlled-vocabulary-not-DB-enum pattern as everywhere else.
+  experience_level: string | null
+  equipment_access: string[]
+  injury_tags: string[]
+  training_days_per_week: number | null
+  preferred_categories: string[]
+  onboarding_completed_at: string | null
   created_at: string
 }
 
