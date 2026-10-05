@@ -183,6 +183,15 @@ export type WaterIntake = {
   goal_liters: number
 }
 
+export type ReadinessLog = {
+  id: string
+  client_id: string
+  date: string
+  sleep_hours: number | null
+  energy_level: number | null
+  soreness_level: number | null
+}
+
 export type CheckIn = {
   id: string
   client_id: string

@@ -170,6 +170,18 @@
       "validationError": "Vyplň horní i dolní tlak",
       "hint": "Vyplň horní i dolní tlak, uloží se to samo",
       "improvementComment": "Tlak se posouvá správným směrem, skvělá práce! 🎉"
+    },
+    "readiness": {
+      "title": "Připravenost",
+      "sleepLabel": "Spánek (hodiny)",
+      "sleepPlaceholder": "např. 7.5",
+      "energyLabel": "Energie",
+      "sorenessLabel": "Bolest svalů",
+      "sorenessHint": "5 = žádná bolest",
+      "scoreLow": "Nízká — dnešní trénink bude lehčí",
+      "scoreModerate": "Střední — trénink podle plánu",
+      "scoreHigh": "Vysoká — jsi připraven/a naplno",
+      "noData": "Zapiš, jak se dnes cítíš, a uvidíš svou připravenost"
     }
   },
   "profile": {

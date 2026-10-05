@@ -215,6 +215,19 @@ create table water_intake (
   unique (client_id, date)
 );
 
+-- Daily readiness input (sleep, energy, soreness) feeding the training
+-- engine's 0-100 readiness score (see src/lib/readiness.ts) — deliberately
+-- separate from check_ins, which is a heavier weekly reflection.
+create table readiness_logs (
+  id uuid primary key default gen_random_uuid(),
+  client_id uuid not null references profiles (id) on delete cascade,
+  date date not null default current_date,
+  sleep_hours numeric,
+  energy_level smallint check (energy_level between 1 and 5),
+  soreness_level smallint check (soreness_level between 1 and 5),
+  unique (client_id, date)
+);
+
 create table check_ins (
   id uuid primary key default gen_random_uuid(),
   client_id uuid not null references profiles (id) on delete cascade,
@@ -300,6 +313,7 @@ alter table step_logs enable row level security;
 alter table blood_pressure_logs enable row level security;
 alter table water_intake enable row level security;
 alter table client_intake enable row level security;
+alter table readiness_logs enable row level security;
 
 -- profiles: a user can read/update their own profile; a trainer can read their clients' profiles
 create policy "profiles_select_own_or_trainer" on profiles
@@ -503,6 +517,14 @@ create policy "water_intake_write_client" on water_intake
   for all using (client_id = auth.uid())
   with check (client_id = auth.uid());
 
+-- readiness_logs
+create policy "readiness_logs_select" on readiness_logs
+  for select using (client_id = auth.uid() or is_trainer_of(client_id));
+
+create policy "readiness_logs_write_client" on readiness_logs
+  for all using (client_id = auth.uid())
+  with check (client_id = auth.uid());
+
 -- check_ins
 create policy "check_ins_select" on check_ins
   for select using (client_id = auth.uid() or is_trainer_of(client_id));
@@ -535,6 +557,6 @@ grant usage on schema public to authenticated;
 grant select, insert, update, delete on
   profiles, workouts, workout_translations, workout_exercises, workout_logs,
   nutrition_plans, meals, meal_items, check_ins, check_in_photos, water_intake,
-  weight_logs, step_logs, blood_pressure_logs, client_intake
+  weight_logs, step_logs, blood_pressure_logs, client_intake, readiness_logs
 to authenticated;
 grant select, insert, update, delete on exercises, exercise_translations, foods, exercise_muscle_weights to authenticated;

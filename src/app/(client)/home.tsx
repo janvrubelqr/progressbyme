@@ -8,6 +8,7 @@ import { BloodPressureTracker } from '@/components/ui/blood-pressure-tracker'
 import { Card } from '@/components/ui/card'
 import { Eyebrow } from '@/components/ui/heading'
 import { LanguageSwitcher } from '@/components/ui/language-switcher'
+import { ReadinessTracker } from '@/components/ui/readiness-tracker'
 import { SignOutButton } from '@/components/ui/sign-out-button'
 import { StepsTracker } from '@/components/ui/steps-tracker'
 import { WaterTracker } from '@/components/ui/water-tracker'
@@ -95,6 +96,10 @@ export default function HomeScreen() {
         state={weatherState}
         showOutdoorAdvisory={nextWorkout?.scheduled_date === todayIso() && nextWorkout?.category === 'cardio'}
       />
+
+      <Card className="mt-6">
+        <ReadinessTracker />
+      </Card>
 
       <Eyebrow className="mb-3 mt-8">{t('home.nextWorkout')}</Eyebrow>
       {isLoading ? (

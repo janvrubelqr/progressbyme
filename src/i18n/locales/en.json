@@ -170,6 +170,18 @@
       "validationError": "Fill in both systolic and diastolic",
       "hint": "Fill in both systolic and diastolic — it'll save automatically",
       "improvementComment": "Your blood pressure is moving in the right direction, great work! 🎉"
+    },
+    "readiness": {
+      "title": "Readiness",
+      "sleepLabel": "Sleep (hours)",
+      "sleepPlaceholder": "e.g. 7.5",
+      "energyLabel": "Energy",
+      "sorenessLabel": "Soreness",
+      "sorenessHint": "5 = no soreness",
+      "scoreLow": "Low — today's plan will be lighter",
+      "scoreModerate": "Moderate — plan as scheduled",
+      "scoreHigh": "High — you're ready to go",
+      "noData": "Log how you're feeling to see today's readiness"
     }
   },
   "profile": {
