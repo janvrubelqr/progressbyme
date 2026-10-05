@@ -6,6 +6,7 @@ import { ActivityIndicator, Alert, Image, Linking, Pressable, ScrollView, Text, 
 
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { useCoachMessage } from '@/hooks/use-coach-message'
 import { todayIso } from '@/lib/last-days'
 import { pickTranslation } from '@/lib/pick-translation'
 import { calculateReadinessScore, readinessCategory, readinessVolumeMultiplier } from '@/lib/readiness'
@@ -80,14 +81,6 @@ export default function WorkoutDetailScreen() {
     }
   }
 
-  if (isLoading || !workout) {
-    return (
-      <View className="flex-1 items-center justify-center bg-coal">
-        <ActivityIndicator color="#D2A85E" />
-      </View>
-    )
-  }
-
   const readinessScore = todayReadiness
     ? calculateReadinessScore({
         sleepHours: todayReadiness.sleep_hours,
@@ -99,6 +92,30 @@ export default function WorkoutDetailScreen() {
   const volumeMultiplier = readinessCat ? readinessVolumeMultiplier(readinessCat) : 1
   const isAdjustedToday = volumeMultiplier < 1
 
+  // Hooks must run unconditionally (before the loading early-return below),
+  // so the "should we even ask the coach" check lives inside the params
+  // instead of around the hook call.
+  const { message: coachMessage } = useCoachMessage(
+    isAdjustedToday && !isLoading
+      ? {
+          workoutTitle: displayTitle,
+          isAdjusted: isAdjustedToday,
+          readinessCategory: readinessCat,
+          goal: profile?.fitness_goal ?? null,
+          experienceLevel: profile?.experience_level ?? null,
+          language,
+        }
+      : null
+  )
+
+  if (isLoading || !workout) {
+    return (
+      <View className="flex-1 items-center justify-center bg-coal">
+        <ActivityIndicator color="#D2A85E" />
+      </View>
+    )
+  }
+
   return (
     <View className="flex-1 bg-coal">
       <ScrollView contentContainerClassName="px-5 pb-28 pt-4">
@@ -106,7 +123,9 @@ export default function WorkoutDetailScreen() {
 
         {isAdjustedToday ? (
           <View className="mb-4 rounded-md border border-amber-400/30 bg-amber-400/10 px-3 py-2.5">
-            <Text className="text-sm leading-5 text-amber-400">{t('workout.readinessAdjustedNotice')}</Text>
+            <Text className="text-sm leading-5 text-amber-400">
+              {coachMessage ?? t('workout.readinessAdjustedNotice')}
+            </Text>
           </View>
         ) : null}
 
