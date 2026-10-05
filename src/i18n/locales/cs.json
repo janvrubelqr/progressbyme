@@ -244,6 +244,7 @@
     "reps": "Opakování",
     "rest": "Pauza",
     "tempo": "Tempo",
+    "readinessAdjustedNotice": "Podle toho, jak ses dnes cítil/a, jsme ti dnešní trénink trochu zmenšili. Původní počty sérií jsou v závorce.",
     "logButton": "Zalogovat trénink",
     "logging": "Ukládám…",
     "logErrorTitle": "Chyba",

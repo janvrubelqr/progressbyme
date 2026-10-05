@@ -6,13 +6,15 @@ import { ActivityIndicator, Alert, Image, Linking, Pressable, ScrollView, Text, 
 
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { todayIso } from '@/lib/last-days'
 import { pickTranslation } from '@/lib/pick-translation'
+import { calculateReadinessScore, readinessCategory, readinessVolumeMultiplier } from '@/lib/readiness'
 import { resolveExerciseDisplay, type ResolvedExercise } from '@/lib/resolve-exercise'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth-store'
 import { useLanguageStore } from '@/stores/language-store'
 import { getYoutubeThumbnail } from '@/lib/youtube-thumbnail'
-import type { Workout } from '@/types/database'
+import type { ReadinessLog, Workout } from '@/types/database'
 
 export default function WorkoutDetailScreen() {
   const { t } = useTranslation()
@@ -22,6 +24,7 @@ export default function WorkoutDetailScreen() {
   const [workout, setWorkout] = useState<Workout | null>(null)
   const [displayTitle, setDisplayTitle] = useState('')
   const [exercises, setExercises] = useState<ResolvedExercise[]>([])
+  const [todayReadiness, setTodayReadiness] = useState<ReadinessLog | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isLogging, setIsLogging] = useState(false)
 
@@ -36,8 +39,23 @@ export default function WorkoutDetailScreen() {
     const translations = (workoutData?.workout_translations ?? []) as { language_code: string; title: string }[]
     setDisplayTitle(pickTranslation(translations, language)?.title ?? workoutData?.title ?? '')
     setExercises(await resolveExerciseDisplay(exerciseData ?? [], language))
+
+    // Only today's workout gets a readiness-based adjustment — a future or
+    // past session isn't affected by how the client feels right now.
+    if (profile && workoutData?.scheduled_date === todayIso()) {
+      const { data: readinessData } = await supabase
+        .from('readiness_logs')
+        .select('*')
+        .eq('client_id', profile.id)
+        .eq('date', todayIso())
+        .maybeSingle()
+      setTodayReadiness(readinessData)
+    } else {
+      setTodayReadiness(null)
+    }
+
     setIsLoading(false)
-  }, [id, language])
+  }, [id, language, profile])
 
   useEffect(() => {
     loadWorkout()
@@ -70,13 +88,31 @@ export default function WorkoutDetailScreen() {
     )
   }
 
+  const readinessScore = todayReadiness
+    ? calculateReadinessScore({
+        sleepHours: todayReadiness.sleep_hours,
+        energyLevel: todayReadiness.energy_level,
+        sorenessLevel: todayReadiness.soreness_level,
+      })
+    : null
+  const readinessCat = readinessScore != null ? readinessCategory(readinessScore) : null
+  const volumeMultiplier = readinessCat ? readinessVolumeMultiplier(readinessCat) : 1
+  const isAdjustedToday = volumeMultiplier < 1
+
   return (
     <View className="flex-1 bg-coal">
       <ScrollView contentContainerClassName="px-5 pb-28 pt-4">
         <Text className="mb-4 font-display-bold text-xl uppercase tracking-[1px] text-ivory">{displayTitle}</Text>
 
+        {isAdjustedToday ? (
+          <View className="mb-4 rounded-md border border-amber-400/30 bg-amber-400/10 px-3 py-2.5">
+            <Text className="text-sm leading-5 text-amber-400">{t('workout.readinessAdjustedNotice')}</Text>
+          </View>
+        ) : null}
+
         {exercises.map(exercise => {
           const thumbnail = exercise.displayVideoUrl ? getYoutubeThumbnail(exercise.displayVideoUrl) : null
+          const adjustedSets = isAdjustedToday ? Math.max(1, Math.round(exercise.sets * volumeMultiplier)) : exercise.sets
 
           return (
             <Card key={exercise.id} className="mb-3">
@@ -101,7 +137,13 @@ export default function WorkoutDetailScreen() {
               </View>
 
               <View className="mt-3 flex-row flex-wrap gap-2">
-                <Tag label={`${t('workout.sets')}: ${exercise.sets}`} />
+                <Tag
+                  label={
+                    isAdjustedToday && adjustedSets !== exercise.sets
+                      ? `${t('workout.sets')}: ${adjustedSets} (${exercise.sets})`
+                      : `${t('workout.sets')}: ${exercise.sets}`
+                  }
+                />
                 <Tag label={`${t('workout.reps')}: ${exercise.reps}`} />
                 {exercise.rest_seconds ? <Tag label={`${t('workout.rest')}: ${exercise.rest_seconds}s`} /> : null}
                 {exercise.tempo ? <Tag label={`${t('workout.tempo')}: ${exercise.tempo}`} /> : null}
