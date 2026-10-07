@@ -214,7 +214,7 @@ export type FoodLog = {
   protein: number
   carbs: number
   fat: number
-  source: 'photo' | 'manual'
+  source: 'photo' | 'voice' | 'manual'
 }
 
 export type CheckIn = {
