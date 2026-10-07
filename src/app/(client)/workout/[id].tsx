@@ -91,12 +91,15 @@ export default function WorkoutDetailScreen() {
   const readinessCat = readinessScore != null ? readinessCategory(readinessScore) : null
   const volumeMultiplier = readinessCat ? readinessVolumeMultiplier(readinessCat) : 1
   const isAdjustedToday = volumeMultiplier < 1
+  const isTodaysWorkout = workout?.scheduled_date === todayIso()
 
   // Hooks must run unconditionally (before the loading early-return below),
   // so the "should we even ask the coach" check lives inside the params
-  // instead of around the hook call.
+  // instead of around the hook call. A coach note shows for any session
+  // scheduled today, not just an adjusted one — readiness being fine is
+  // still worth a word of encouragement, not silence.
   const { message: coachMessage } = useCoachMessage(
-    isAdjustedToday && !isLoading
+    isTodaysWorkout && !isLoading
       ? {
           workoutTitle: displayTitle,
           isAdjusted: isAdjustedToday,
@@ -121,10 +124,14 @@ export default function WorkoutDetailScreen() {
       <ScrollView contentContainerClassName="px-5 pb-28 pt-4">
         <Text className="mb-4 font-display-bold text-xl uppercase tracking-[1px] text-ivory">{displayTitle}</Text>
 
-        {isAdjustedToday ? (
-          <View className="mb-4 rounded-md border border-amber-400/30 bg-amber-400/10 px-3 py-2.5">
-            <Text className="text-sm leading-5 text-amber-400">
-              {coachMessage ?? t('workout.readinessAdjustedNotice')}
+        {isTodaysWorkout ? (
+          <View
+            className={`mb-4 rounded-md border px-3 py-2.5 ${
+              isAdjustedToday ? 'border-amber-400/30 bg-amber-400/10' : 'border-gold/30 bg-gold/10'
+            }`}
+          >
+            <Text className={`text-sm leading-5 ${isAdjustedToday ? 'text-amber-400' : 'text-gold'}`}>
+              {coachMessage ?? t(isAdjustedToday ? 'workout.readinessAdjustedNotice' : 'workout.coachDefaultNotice')}
             </Text>
           </View>
         ) : null}

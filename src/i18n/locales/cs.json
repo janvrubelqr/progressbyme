@@ -245,6 +245,7 @@
     "rest": "Pauza",
     "tempo": "Tempo",
     "readinessAdjustedNotice": "Podle toho, jak ses dnes cítil/a, jsme ti dnešní trénink trochu zmenšili. Původní počty sérií jsou v závorce.",
+    "coachDefaultNotice": "Dnešní trénink tě čeká podle plánu — ať se ti daří!",
     "logButton": "Zalogovat trénink",
     "logging": "Ukládám…",
     "logErrorTitle": "Chyba",

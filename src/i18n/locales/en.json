@@ -245,6 +245,7 @@
     "rest": "Rest",
     "tempo": "Tempo",
     "readinessAdjustedNotice": "We've trimmed today's volume a bit based on how you're feeling. Original set counts are shown in brackets.",
+    "coachDefaultNotice": "Today's session is on as planned — go get it.",
     "logButton": "Log this workout",
     "logging": "Saving…",
     "logErrorTitle": "Error",
