@@ -105,20 +105,30 @@ function pickMealItems(foods: Food[], mealProteinG: number, cursor: { protein: n
   const fatFoods = foods.filter(f => (f.fat_100g * 9) / Math.max(f.kcal_100g, 1) > 0.4)
 
   const items: { food: Food; grams: number }[] = []
+  const usedIds = new Set<string>()
 
   if (proteinFoods.length > 0) {
     const food = proteinFoods[cursor.protein % proteinFoods.length]
     cursor.protein++
+    usedIds.add(food.id)
     const grams = Math.min(300, Math.max(50, Math.round((mealProteinG / Math.max(food.protein_100g, 1)) * 100)))
     items.push({ food, grams })
   }
-  if (carbFoods.length > 0) {
-    const food = carbFoods[cursor.carb % carbFoods.length]
+
+  // A fatty meat/fish often qualifies as both the protein and the fat
+  // bucket — excluding already-used foods keeps a meal from listing the
+  // same item twice instead of giving it actual variety.
+  const remainingCarbFoods = carbFoods.filter(f => !usedIds.has(f.id))
+  if (remainingCarbFoods.length > 0) {
+    const food = remainingCarbFoods[cursor.carb % remainingCarbFoods.length]
     cursor.carb++
+    usedIds.add(food.id)
     items.push({ food, grams: 80 })
   }
-  if (fatFoods.length > 0) {
-    const food = fatFoods[cursor.fat % fatFoods.length]
+
+  const remainingFatFoods = fatFoods.filter(f => !usedIds.has(f.id))
+  if (remainingFatFoods.length > 0) {
+    const food = remainingFatFoods[cursor.fat % remainingFatFoods.length]
     cursor.fat++
     items.push({ food, grams: 15 })
   }
