@@ -242,6 +242,23 @@ create table readiness_logs (
   unique (client_id, date)
 );
 
+-- Daily food log — what was actually eaten, separate from the fixed
+-- nutrition_plans/meals/meal_items template. No photo storage: the image
+-- is sent to estimate-food-photo for a one-time AI estimate and never
+-- persisted.
+create table food_logs (
+  id uuid primary key default gen_random_uuid(),
+  client_id uuid not null references profiles (id) on delete cascade,
+  date date not null default current_date,
+  logged_at timestamptz not null default now(),
+  description text not null,
+  kcal numeric not null default 0,
+  protein numeric not null default 0,
+  carbs numeric not null default 0,
+  fat numeric not null default 0,
+  source text not null default 'manual'
+);
+
 create table check_ins (
   id uuid primary key default gen_random_uuid(),
   client_id uuid not null references profiles (id) on delete cascade,
@@ -328,6 +345,7 @@ alter table blood_pressure_logs enable row level security;
 alter table water_intake enable row level security;
 alter table client_intake enable row level security;
 alter table readiness_logs enable row level security;
+alter table food_logs enable row level security;
 
 -- profiles: a user can read/update their own profile; a trainer can read their clients' profiles
 create policy "profiles_select_own_or_trainer" on profiles
@@ -539,6 +557,14 @@ create policy "readiness_logs_write_client" on readiness_logs
   for all using (client_id = auth.uid())
   with check (client_id = auth.uid());
 
+-- food_logs
+create policy "food_logs_select" on food_logs
+  for select using (client_id = auth.uid() or is_trainer_of(client_id));
+
+create policy "food_logs_write_client" on food_logs
+  for all using (client_id = auth.uid())
+  with check (client_id = auth.uid());
+
 -- check_ins
 create policy "check_ins_select" on check_ins
   for select using (client_id = auth.uid() or is_trainer_of(client_id));
@@ -571,7 +597,7 @@ grant usage on schema public to authenticated;
 grant select, insert, update, delete on
   profiles, workouts, workout_translations, workout_exercises, workout_logs,
   nutrition_plans, meals, meal_items, check_ins, check_in_photos, water_intake,
-  weight_logs, step_logs, blood_pressure_logs, client_intake, readiness_logs
+  weight_logs, step_logs, blood_pressure_logs, client_intake, readiness_logs, food_logs
 to authenticated;
 grant select, insert, update, delete on exercises, exercise_translations, foods, exercise_muscle_weights to authenticated;
 

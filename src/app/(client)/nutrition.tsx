@@ -1,13 +1,16 @@
+import { Ionicons } from '@expo/vector-icons'
+import { Link } from 'expo-router'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ActivityIndicator, RefreshControl, ScrollView, Text, View } from 'react-native'
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native'
 
 import { Card } from '@/components/ui/card'
 import { Eyebrow, Heading } from '@/components/ui/heading'
 import { MacroRings } from '@/components/ui/macro-rings'
+import { todayIso } from '@/lib/last-days'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth-store'
-import type { Meal, MealItem, NutritionPlan } from '@/types/database'
+import type { FoodLog, Meal, MealItem, NutritionPlan } from '@/types/database'
 
 const MACRO_COLORS = { kcal: '#4A90E2', protein: '#4CD97B', carbs: '#F5A623', fat: '#E91E8C' }
 
@@ -18,21 +21,31 @@ export default function NutritionScreen() {
   const profile = useAuthStore(state => state.profile)
   const [plan, setPlan] = useState<NutritionPlan | null>(null)
   const [meals, setMeals] = useState<MealWithItems[]>([])
+  const [todayLogs, setTodayLogs] = useState<FoodLog[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
   const loadPlan = useCallback(async () => {
     if (!profile) return
     setIsLoading(true)
 
-    const { data: planData } = await supabase
-      .from('nutrition_plans')
-      .select('*')
-      .eq('client_id', profile.id)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle()
+    const [{ data: planData }, { data: logsData }] = await Promise.all([
+      supabase
+        .from('nutrition_plans')
+        .select('*')
+        .eq('client_id', profile.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+      supabase
+        .from('food_logs')
+        .select('*')
+        .eq('client_id', profile.id)
+        .eq('date', todayIso())
+        .order('logged_at', { ascending: true }),
+    ])
 
     setPlan(planData)
+    setTodayLogs((logsData as FoodLog[]) ?? [])
 
     if (planData) {
       const { data: mealsData } = await supabase
@@ -65,6 +78,8 @@ export default function NutritionScreen() {
       { kcal: 0, protein: 0, carbs: 0, fat: 0 }
     )
 
+  const loggedKcal = todayLogs.reduce((sum, log) => sum + log.kcal, 0)
+
   return (
     <ScrollView
       className="flex-1 bg-coal"
@@ -73,11 +88,50 @@ export default function NutritionScreen() {
     >
       {isLoading ? (
         <ActivityIndicator color="#D2A85E" />
-      ) : !plan ? (
-        <Text className="text-muted">{t('nutrition.empty')}</Text>
       ) : (
         <>
-          <Heading className="mb-4">{plan.title}</Heading>
+          <View className="mb-6 flex-row items-center justify-between">
+            <Eyebrow>{t('logFood.todayLogTitle')}</Eyebrow>
+            <Link href="/(client)/log-food" asChild>
+              <Pressable className="flex-row items-center gap-1.5 rounded-full border border-gold/40 bg-gold/10 px-3 py-1.5 active:opacity-60">
+                <Ionicons name="camera-outline" size={14} color="#D2A85E" />
+                <Text className="font-sans-medium text-xs text-gold">{t('logFood.logButton')}</Text>
+              </Pressable>
+            </Link>
+          </View>
+
+          {todayLogs.length === 0 ? (
+            <Card className="mb-6">
+              <Text className="text-sm text-muted">{t('logFood.todayLogEmpty')}</Text>
+            </Card>
+          ) : (
+            <Card className="mb-6">
+              {todayLogs.map((log, index) => (
+                <View
+                  key={log.id}
+                  className={`flex-row items-center justify-between py-2 ${index > 0 ? 'border-t border-border-soft' : ''}`}
+                >
+                  <View className="min-w-0 flex-1 pr-3">
+                    <Text className="text-ivory" numberOfLines={1}>
+                      {log.description}
+                    </Text>
+                    {log.source === 'photo' ? <Text className="text-xs text-muted">{t('logFood.photoEstimateTag')}</Text> : null}
+                  </View>
+                  <Text className="text-muted">{log.kcal} kcal</Text>
+                </View>
+              ))}
+              <View className="mt-2 flex-row items-center justify-between border-t border-border-soft pt-2">
+                <Text className="font-sans-medium text-sm text-ivory">{t('logFood.todayTotal')}</Text>
+                <Text className="font-display-medium text-sm text-gold">{loggedKcal} kcal</Text>
+              </View>
+            </Card>
+          )}
+
+          {!plan ? (
+            <Text className="text-muted">{t('nutrition.empty')}</Text>
+          ) : (
+            <>
+              <Heading className="mb-4">{plan.title}</Heading>
 
           {!profile?.date_of_birth || !profile?.height_cm ? (
             <View className="mb-4 rounded-md border border-amber-400/30 bg-amber-400/10 px-3 py-2.5">
@@ -128,6 +182,8 @@ export default function NutritionScreen() {
               </Card>
             </View>
           ))}
+            </>
+          )}
         </>
       )}
     </ScrollView>

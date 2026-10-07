@@ -66,6 +66,7 @@ export default function ClientTabsLayout() {
       <Tabs.Screen name="weight-history" options={{ href: null }} />
       <Tabs.Screen name="steps-history" options={{ href: null }} />
       <Tabs.Screen name="blood-pressure-history" options={{ href: null }} />
+      <Tabs.Screen name="log-food" options={{ href: null }} />
     </Tabs>
   )
 }

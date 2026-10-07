@@ -509,5 +509,28 @@
     "back": "Back",
     "next": "Continue",
     "finish": "Finish"
+  },
+  "logFood": {
+    "title": "Log your food",
+    "subtitle": "AI will identify what's in the photo and estimate rough calories and macros. It's always just an estimate — feel free to adjust the numbers.",
+    "takePhoto": "Take photo",
+    "chooseLibrary": "From library",
+    "estimating": "Figuring out what's in the photo…",
+    "estimateNotice": "AI estimate — check it and adjust if needed before saving.",
+    "descriptionLabel": "What it is",
+    "kcalLabel": "Calories",
+    "proteinLabel": "Protein (g)",
+    "carbsLabel": "Carbs (g)",
+    "fatLabel": "Fat (g)",
+    "save": "Save to log",
+    "retake": "Retake photo",
+    "permissionDenied": "The app needs camera or photo library access.",
+    "estimateError": "Couldn't recognize the food in that photo. Please try again.",
+    "saveError": "Couldn't save that entry.",
+    "logButton": "Log food",
+    "todayLogTitle": "Today's food log",
+    "todayLogEmpty": "Nothing logged yet today.",
+    "todayTotal": "Total today",
+    "photoEstimateTag": "photo estimate"
   }
 }

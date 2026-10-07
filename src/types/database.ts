@@ -204,6 +204,19 @@ export type ReadinessLog = {
   soreness_level: number | null
 }
 
+export type FoodLog = {
+  id: string
+  client_id: string
+  date: string
+  logged_at: string
+  description: string
+  kcal: number
+  protein: number
+  carbs: number
+  fat: number
+  source: 'photo' | 'manual'
+}
+
 export type CheckIn = {
   id: string
   client_id: string

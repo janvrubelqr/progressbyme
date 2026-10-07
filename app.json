@@ -40,6 +40,13 @@
         {
           "locationWhenInUsePermission": "Used to factor local weather into your daily water goal."
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Used to log food from a photo in your library.",
+          "cameraPermission": "Used to take a photo of your food to log it."
+        }
       ]
     ],
     "experiments": {

@@ -509,5 +509,28 @@
     "back": "Späť",
     "next": "Pokračovať",
     "finish": "Dokončiť"
+  },
+  "logFood": {
+    "title": "Odfoť jedlo",
+    "subtitle": "AI odhadne, čo je na fotke, a spočíta približné kalórie a makrá. Vždy ide len o odhad, čísla si pokojne uprav.",
+    "takePhoto": "Odfotiť",
+    "chooseLibrary": "Z galérie",
+    "estimating": "Zisťujem, čo je na fotke…",
+    "estimateNotice": "Odhad od AI — skontroluj a prípadne uprav, než to uložíš.",
+    "descriptionLabel": "Čo to je",
+    "kcalLabel": "Kalórie",
+    "proteinLabel": "Bielkoviny (g)",
+    "carbsLabel": "Sacharidy (g)",
+    "fatLabel": "Tuky (g)",
+    "save": "Uložiť do denníka",
+    "retake": "Odfotiť znova",
+    "permissionDenied": "Aplikácia potrebuje prístup ku kamere alebo galérii.",
+    "estimateError": "Nepodarilo sa rozpoznať jedlo na fotke. Skús to prosím znova.",
+    "saveError": "Záznam sa nepodarilo uložiť.",
+    "logButton": "Odfotiť jedlo",
+    "todayLogTitle": "Dnešný denník jedla",
+    "todayLogEmpty": "Dnes si zatiaľ nič nezaznamenal/a.",
+    "todayTotal": "Celkom dnes",
+    "photoEstimateTag": "odhad z fotky"
   }
 }

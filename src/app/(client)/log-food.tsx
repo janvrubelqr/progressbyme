@@ -1,0 +1,207 @@
+import { Ionicons } from '@expo/vector-icons'
+import * as ImagePicker from 'expo-image-picker'
+import { useRouter } from 'expo-router'
+import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { ActivityIndicator, Image, Pressable, ScrollView, Text, View } from 'react-native'
+
+import { Button } from '@/components/ui/button'
+import { Heading } from '@/components/ui/heading'
+import { MessageBanner, type Message } from '@/components/ui/message-banner'
+import { TextField } from '@/components/ui/text-field'
+import { digitsOnly } from '@/lib/digits-only'
+import { supabase } from '@/lib/supabase'
+import { useAuthStore } from '@/stores/auth-store'
+import { useLanguageStore } from '@/stores/language-store'
+
+type Estimate = { description: string; kcal: number; proteinG: number; carbsG: number; fatG: number }
+
+export default function LogFoodScreen() {
+  const { t } = useTranslation()
+  const router = useRouter()
+  const profile = useAuthStore(state => state.profile)
+  const language = useLanguageStore(state => state.language)
+
+  const [photoUri, setPhotoUri] = useState<string | null>(null)
+  const [isEstimating, setIsEstimating] = useState(false)
+  const [estimate, setEstimate] = useState<Estimate | null>(null)
+  const [isSaving, setIsSaving] = useState(false)
+  const [message, setMessage] = useState<Message | null>(null)
+
+  const runEstimate = async (base64: string, uri: string) => {
+    setPhotoUri(uri)
+    setEstimate(null)
+    setMessage(null)
+    setIsEstimating(true)
+
+    const { data, error } = await supabase.functions.invoke<Estimate>('estimate-food-photo', {
+      body: { imageBase64: base64, mediaType: 'image/jpeg', language },
+    })
+
+    setIsEstimating(false)
+
+    if (error || !data) {
+      setMessage({ type: 'error', text: t('logFood.estimateError') })
+      return
+    }
+
+    setEstimate(data)
+  }
+
+  const pickFrom = async (source: 'camera' | 'library') => {
+    const permission =
+      source === 'camera'
+        ? await ImagePicker.requestCameraPermissionsAsync()
+        : await ImagePicker.requestMediaLibraryPermissionsAsync()
+
+    if (!permission.granted) {
+      setMessage({ type: 'error', text: t('logFood.permissionDenied') })
+      return
+    }
+
+    const options: ImagePicker.ImagePickerOptions = { mediaTypes: ['images'], quality: 0.6, base64: true }
+    const result = source === 'camera' ? await ImagePicker.launchCameraAsync(options) : await ImagePicker.launchImageLibraryAsync(options)
+
+    if (result.canceled || !result.assets?.[0]?.base64) return
+
+    await runEstimate(result.assets[0].base64, result.assets[0].uri)
+  }
+
+  const handleSave = async () => {
+    if (!profile || !estimate) return
+    setIsSaving(true)
+
+    const { error } = await supabase.from('food_logs').insert({
+      client_id: profile.id,
+      description: estimate.description,
+      kcal: estimate.kcal,
+      protein: estimate.proteinG,
+      carbs: estimate.carbsG,
+      fat: estimate.fatG,
+      source: 'photo',
+    })
+
+    setIsSaving(false)
+
+    if (error) {
+      setMessage({ type: 'error', text: t('logFood.saveError') })
+      return
+    }
+
+    if (router.canGoBack()) router.back()
+    else router.replace('/(client)/nutrition')
+  }
+
+  return (
+    <ScrollView className="flex-1 bg-coal" contentContainerClassName="px-5 pb-10 pt-16">
+      <Pressable
+        onPress={() => (router.canGoBack() ? router.back() : router.replace('/(client)/nutrition'))}
+        hitSlop={12}
+        className="mb-4 flex-row items-center gap-1.5 self-start active:opacity-60"
+      >
+        <Ionicons name="chevron-back" size={16} color="#D2A85E" />
+        <Text className="font-sans-medium text-sm text-gold">{t('history.back')}</Text>
+      </Pressable>
+
+      <Heading underline className="mb-2">
+        {t('logFood.title')}
+      </Heading>
+      <Text className="mb-6 text-sm leading-5 text-muted">{t('logFood.subtitle')}</Text>
+
+      {photoUri ? (
+        <Image source={{ uri: photoUri }} className="mb-4 h-48 w-full rounded-md" resizeMode="cover" />
+      ) : null}
+
+      {!estimate ? (
+        <View className="flex-row gap-3">
+          <Pressable
+            onPress={() => pickFrom('camera')}
+            disabled={isEstimating}
+            className="flex-1 items-center gap-2 rounded-md border border-border bg-graph py-6 active:opacity-70"
+          >
+            <Ionicons name="camera-outline" size={24} color="#D2A85E" />
+            <Text className="font-sans-medium text-sm text-ivory">{t('logFood.takePhoto')}</Text>
+          </Pressable>
+          <Pressable
+            onPress={() => pickFrom('library')}
+            disabled={isEstimating}
+            className="flex-1 items-center gap-2 rounded-md border border-border bg-graph py-6 active:opacity-70"
+          >
+            <Ionicons name="images-outline" size={24} color="#D2A85E" />
+            <Text className="font-sans-medium text-sm text-ivory">{t('logFood.chooseLibrary')}</Text>
+          </Pressable>
+        </View>
+      ) : null}
+
+      {isEstimating ? (
+        <View className="mt-6 items-center gap-2">
+          <ActivityIndicator color="#D2A85E" />
+          <Text className="text-sm text-muted">{t('logFood.estimating')}</Text>
+        </View>
+      ) : null}
+
+      {estimate ? (
+        <View className="mt-2">
+          <View className="mb-4 rounded-md border border-gold/30 bg-gold/10 px-3 py-2.5">
+            <Text className="text-sm leading-5 text-gold">{t('logFood.estimateNotice')}</Text>
+          </View>
+
+          <TextField
+            label={t('logFood.descriptionLabel')}
+            value={estimate.description}
+            onChangeText={v => setEstimate(prev => (prev ? { ...prev, description: v } : prev))}
+          />
+
+          <View className="flex-row gap-3">
+            <TextField
+              label={t('logFood.kcalLabel')}
+              containerClassName="flex-1"
+              value={String(estimate.kcal)}
+              onChangeText={v => setEstimate(prev => (prev ? { ...prev, kcal: Number(digitsOnly(v)) || 0 } : prev))}
+              keyboardType="number-pad"
+            />
+            <TextField
+              label={t('logFood.proteinLabel')}
+              containerClassName="flex-1"
+              value={String(estimate.proteinG)}
+              onChangeText={v => setEstimate(prev => (prev ? { ...prev, proteinG: Number(digitsOnly(v)) || 0 } : prev))}
+              keyboardType="number-pad"
+            />
+          </View>
+          <View className="flex-row gap-3">
+            <TextField
+              label={t('logFood.carbsLabel')}
+              containerClassName="flex-1"
+              value={String(estimate.carbsG)}
+              onChangeText={v => setEstimate(prev => (prev ? { ...prev, carbsG: Number(digitsOnly(v)) || 0 } : prev))}
+              keyboardType="number-pad"
+            />
+            <TextField
+              label={t('logFood.fatLabel')}
+              containerClassName="flex-1"
+              value={String(estimate.fatG)}
+              onChangeText={v => setEstimate(prev => (prev ? { ...prev, fatG: Number(digitsOnly(v)) || 0 } : prev))}
+              keyboardType="number-pad"
+            />
+          </View>
+
+          <MessageBanner message={message} />
+
+          <Button label={t('logFood.save')} onPress={handleSave} isLoading={isSaving} className="mt-2" />
+          <Button
+            label={t('logFood.retake')}
+            variant="ghost"
+            onPress={() => {
+              setEstimate(null)
+              setPhotoUri(null)
+              setMessage(null)
+            }}
+            className="mt-3"
+          />
+        </View>
+      ) : (
+        <MessageBanner message={message} />
+      )}
+    </ScrollView>
+  )
+}
