@@ -572,3 +572,15 @@ grant select, insert, update, delete on
   weight_logs, step_logs, blood_pressure_logs, client_intake, readiness_logs
 to authenticated;
 grant select, insert, update, delete on exercises, exercise_translations, foods, exercise_muscle_weights to authenticated;
+
+-- service_role (used by Edge Functions) also only gets table access via an
+-- explicit GRANT — RLS bypass is a separate permission layer. `alter
+-- default privileges` covers tables created by later migrations too.
+grant usage on schema public to service_role;
+grant all on all tables in schema public to service_role;
+grant all on all sequences in schema public to service_role;
+grant execute on all functions in schema public to service_role;
+
+alter default privileges in schema public grant all on tables to service_role;
+alter default privileges in schema public grant all on sequences to service_role;
+alter default privileges in schema public grant execute on functions to service_role;
