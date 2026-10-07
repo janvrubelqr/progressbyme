@@ -162,7 +162,9 @@ create table foods (
 create table nutrition_plans (
   id uuid primary key default gen_random_uuid(),
   client_id uuid not null references profiles (id) on delete cascade,
-  trainer_id uuid not null references profiles (id) on delete cascade,
+  -- Null for engine-generated plans (no human trainer) — same reasoning as
+  -- workouts.trainer_id above.
+  trainer_id uuid references profiles (id) on delete cascade,
   title text not null,
   target_kcal numeric not null default 0,
   target_protein numeric not null default 0,

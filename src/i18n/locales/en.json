@@ -285,7 +285,8 @@
     "kcal": "Calories",
     "protein": "Protein",
     "carbs": "Carbs",
-    "fat": "Fat"
+    "fat": "Fat",
+    "estimatedTargetsNotice": "These targets are a rough estimate — add your height, date of birth and current weight in My Account for an accurate calculation."
   },
   "checkin": {
     "title": "Check-in",

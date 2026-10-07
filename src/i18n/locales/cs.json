@@ -285,7 +285,8 @@
     "kcal": "Kalorie",
     "protein": "Protein",
     "carbs": "Sacharidy",
-    "fat": "Tuky"
+    "fat": "Tuky",
+    "estimatedTargetsNotice": "Cíle jsou zatím odhadem — doplň si výšku, datum narození a aktuální váhu v Mém účtu pro přesnější výpočet."
   },
   "checkin": {
     "title": "Check-in",

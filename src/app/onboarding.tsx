@@ -77,10 +77,14 @@ export default function OnboardingScreen() {
 
     if (!error && data) {
       setProfile(data)
-      // Best-effort: a client should never get stuck on onboarding because
-      // plan generation hit a snag — they just land on Home with no
-      // workouts yet, same as before this existed.
-      await supabase.functions.invoke('generate-starter-plan', { body: { client_id: data.id } }).catch(() => {})
+      // Best-effort, both in parallel: a client should never get stuck on
+      // onboarding because plan generation hit a snag — they just land on
+      // Home with no workouts/nutrition plan yet, same as before either
+      // of these existed.
+      await Promise.allSettled([
+        supabase.functions.invoke('generate-starter-plan', { body: { client_id: data.id } }),
+        supabase.functions.invoke('generate-starter-nutrition-plan', { body: { client_id: data.id } }),
+      ])
       setIsSaving(false)
       router.replace('/(client)/home')
     } else {

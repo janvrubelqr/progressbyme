@@ -79,6 +79,12 @@ export default function NutritionScreen() {
         <>
           <Heading className="mb-4">{plan.title}</Heading>
 
+          {!profile?.date_of_birth || !profile?.height_cm ? (
+            <View className="mb-4 rounded-md border border-amber-400/30 bg-amber-400/10 px-3 py-2.5">
+              <Text className="text-sm leading-5 text-amber-400">{t('nutrition.estimatedTargetsNotice')}</Text>
+            </View>
+          ) : null}
+
           <Card className="mb-6 flex-row items-center justify-between">
             <View className="gap-3">
               <MacroRow color={MACRO_COLORS.kcal} label={t('nutrition.kcal')} value={totals.kcal} target={plan.target_kcal} unit="kcal" />
