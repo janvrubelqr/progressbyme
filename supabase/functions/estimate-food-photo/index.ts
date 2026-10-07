@@ -98,9 +98,14 @@ Deno.serve(async req => {
     return jsonResponse({ error: 'Empty response from model' }, 502)
   }
 
+  // The system prompt asks for raw JSON only, but the model sometimes wraps
+  // it in a ```json ... ``` fence anyway — strip that before parsing rather
+  // than relying solely on the prompt to prevent it.
+  const jsonText = raw.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/i, '').trim()
+
   let parsed: { description?: string; kcal?: number; proteinG?: number; carbsG?: number; fatG?: number }
   try {
-    parsed = JSON.parse(raw)
+    parsed = JSON.parse(jsonText)
   } catch {
     return jsonResponse({ error: 'Could not parse model response', details: raw }, 502)
   }
