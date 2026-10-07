@@ -14,6 +14,23 @@
 const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY')
 const MODEL = 'claude-haiku-4-5' // cheap/fast — this is one or two sentences of copy, not planning
 
+// The web build calls this directly from the browser (supabase.functions.invoke),
+// so it needs real CORS headers — without them the browser's preflight OPTIONS
+// request fails before the actual POST ever goes out, which silently looks like
+// "the call failed" client-side (it falls back to static copy, see
+// use-coach-message.ts) rather than a loud error.
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
+
+function jsonResponse(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { 'Content-Type': 'application/json', ...CORS_HEADERS },
+  })
+}
+
 type CoachRequest = {
   language: 'cs' | 'en' | 'sk'
   workoutTitle: string
@@ -46,17 +63,21 @@ function buildPrompt(req: CoachRequest): string {
 }
 
 Deno.serve(async req => {
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: CORS_HEADERS })
+  }
+
   if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 })
+    return jsonResponse({ error: 'Method not allowed' }, 405)
   }
 
   if (!ANTHROPIC_API_KEY) {
-    return new Response(JSON.stringify({ error: 'ANTHROPIC_API_KEY is not configured' }), { status: 500 })
+    return jsonResponse({ error: 'ANTHROPIC_API_KEY is not configured' }, 500)
   }
 
   const body = (await req.json().catch(() => null)) as CoachRequest | null
   if (!body?.workoutTitle || !body.language) {
-    return new Response(JSON.stringify({ error: 'workoutTitle and language are required' }), { status: 400 })
+    return jsonResponse({ error: 'workoutTitle and language are required' }, 400)
   }
 
   const systemPrompt = [
@@ -85,15 +106,15 @@ Deno.serve(async req => {
 
   if (!anthropicResponse.ok) {
     const details = await anthropicResponse.text()
-    return new Response(JSON.stringify({ error: 'Anthropic request failed', details }), { status: 502 })
+    return jsonResponse({ error: 'Anthropic request failed', details }, 502)
   }
 
   const result = await anthropicResponse.json()
   const message = result.content?.[0]?.text?.trim()
 
   if (!message) {
-    return new Response(JSON.stringify({ error: 'Empty response from model' }), { status: 502 })
+    return jsonResponse({ error: 'Empty response from model' }, 502)
   }
 
-  return new Response(JSON.stringify({ message }), { headers: { 'Content-Type': 'application/json' } })
+  return jsonResponse({ message })
 })
