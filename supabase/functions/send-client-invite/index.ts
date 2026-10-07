@@ -17,6 +17,23 @@ const RESEND_FROM_EMAIL = Deno.env.get('RESEND_FROM_EMAIL') ?? 'onboarding@resen
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 
+// Called from the web build's browser (supabase.functions.invoke in
+// (trainer)/clients/new.tsx), so it needs real CORS headers — without them
+// the preflight OPTIONS request fails before the real POST goes out. That
+// call site is fire-and-forget with a swallowed .catch(), so this was
+// failing completely silently: no invite email ever sent, no error shown.
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
+
+function jsonResponse(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { 'Content-Type': 'application/json', ...CORS_HEADERS },
+  })
+}
+
 function renderEmail(opts: { trainerName: string; clientName: string; email: string; hasAccount: boolean }) {
   const heading = opts.hasAccount ? `${opts.trainerName} tě přidal/a do appky` : `${opts.trainerName} tě zve do appky`
   const body = opts.hasAccount
@@ -94,17 +111,21 @@ function renderEmail(opts: { trainerName: string; clientName: string; email: str
 }
 
 Deno.serve(async req => {
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: CORS_HEADERS })
+  }
+
   if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 })
+    return jsonResponse({ error: 'Method not allowed' }, 405)
   }
 
   if (!RESEND_API_KEY) {
-    return new Response(JSON.stringify({ error: 'RESEND_API_KEY is not configured' }), { status: 500 })
+    return jsonResponse({ error: 'RESEND_API_KEY is not configured' }, 500)
   }
 
   const { intake_id } = await req.json().catch(() => ({}))
   if (!intake_id) {
-    return new Response(JSON.stringify({ error: 'intake_id is required' }), { status: 400 })
+    return jsonResponse({ error: 'intake_id is required' }, 400)
   }
 
   const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY)
@@ -116,7 +137,7 @@ Deno.serve(async req => {
     .single()
 
   if (intakeError || !intake) {
-    return new Response(JSON.stringify({ error: 'client_intake row not found' }), { status: 404 })
+    return jsonResponse({ error: 'client_intake row not found' }, 404)
   }
 
   const { data: trainer } = await supabase.from('profiles').select('full_name').eq('id', intake.trainer_id).single()
@@ -146,10 +167,8 @@ Deno.serve(async req => {
 
   if (!resendResponse.ok) {
     const errorText = await resendResponse.text()
-    return new Response(JSON.stringify({ error: 'Resend request failed', details: errorText }), { status: 502 })
+    return jsonResponse({ error: 'Resend request failed', details: errorText }, 502)
   }
 
-  return new Response(JSON.stringify({ ok: true, hasAccount: Boolean(hasAccount) }), {
-    headers: { 'Content-Type': 'application/json' },
-  })
+  return jsonResponse({ ok: true, hasAccount: Boolean(hasAccount) })
 })
