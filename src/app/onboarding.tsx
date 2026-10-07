@@ -75,11 +75,16 @@ export default function OnboardingScreen() {
       .select()
       .single()
 
-    setIsSaving(false)
-
     if (!error && data) {
       setProfile(data)
+      // Best-effort: a client should never get stuck on onboarding because
+      // plan generation hit a snag — they just land on Home with no
+      // workouts yet, same as before this existed.
+      await supabase.functions.invoke('generate-starter-plan', { body: { client_id: data.id } }).catch(() => {})
+      setIsSaving(false)
       router.replace('/(client)/home')
+    } else {
+      setIsSaving(false)
     }
   }
 

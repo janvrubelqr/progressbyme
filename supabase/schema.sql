@@ -54,7 +54,10 @@ create table client_intake (
 create table workouts (
   id uuid primary key default gen_random_uuid(),
   client_id uuid not null references profiles (id) on delete cascade,
-  trainer_id uuid not null references profiles (id) on delete cascade,
+  -- Null for engine-generated plans (no human trainer) — see
+  -- supabase/functions/generate-starter-plan, which runs with the service
+  -- role and so isn't itself subject to the trainer-write RLS below.
+  trainer_id uuid references profiles (id) on delete cascade,
   title text not null,
   scheduled_date date,
   -- What kind of session this is (home / gym / cardio / rehab / ...) — lets
