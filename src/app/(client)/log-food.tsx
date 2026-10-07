@@ -16,6 +16,12 @@ import { useLanguageStore } from '@/stores/language-store'
 
 type Estimate = { description: string; kcal: number; proteinG: number; carbsG: number; fatG: number }
 
+const SUPPORTED_MEDIA_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+
+function normalizeMediaType(mimeType: string | undefined): string {
+  return mimeType && SUPPORTED_MEDIA_TYPES.includes(mimeType) ? mimeType : 'image/jpeg'
+}
+
 export default function LogFoodScreen() {
   const { t } = useTranslation()
   const router = useRouter()
@@ -28,14 +34,14 @@ export default function LogFoodScreen() {
   const [isSaving, setIsSaving] = useState(false)
   const [message, setMessage] = useState<Message | null>(null)
 
-  const runEstimate = async (base64: string, uri: string) => {
+  const runEstimate = async (base64: string, uri: string, mediaType: string) => {
     setPhotoUri(uri)
     setEstimate(null)
     setMessage(null)
     setIsEstimating(true)
 
     const { data, error } = await supabase.functions.invoke<Estimate>('estimate-food-photo', {
-      body: { imageBase64: base64, mediaType: 'image/jpeg', language },
+      body: { imageBase64: base64, mediaType, language },
     })
 
     setIsEstimating(false)
@@ -64,7 +70,12 @@ export default function LogFoodScreen() {
 
     if (result.canceled || !result.assets?.[0]?.base64) return
 
-    await runEstimate(result.assets[0].base64, result.assets[0].uri)
+    const asset = result.assets[0]
+    // The base64 payload is the asset's actual encoding (on web this is the
+    // original file, not necessarily re-encoded to JPEG) — declaring the
+    // wrong media type makes Anthropic's API reject the request outright,
+    // so trust asset.mimeType when present instead of assuming JPEG.
+    await runEstimate(asset.base64!, asset.uri, normalizeMediaType(asset.mimeType))
   }
 
   const handleSave = async () => {
