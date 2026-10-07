@@ -115,7 +115,7 @@ Deno.serve(async req => {
     .single()
 
   if (profileError || !profile) {
-    return jsonResponse({ error: 'Profile not found' }, 404)
+    return jsonResponse({ error: 'Profile not found', details: profileError }, 404)
   }
 
   const { data: exercises } = await supabase
