@@ -539,5 +539,19 @@
     "todayLogEmpty": "Dnes si zatiaľ nič nezaznamenal/a.",
     "todayTotal": "Celkom dnes",
     "photoEstimateTag": "odhad z fotky"
+  },
+  "formCheck": {
+    "entryLink": "Kontrola techniky",
+    "title": "Kontrola techniky — drep",
+    "subtitle": "Postav sa tak, aby ťa kamera videla celého, a zacvič pár drepov. Aplikácia počíta opakovania a hlási hĺbku. Nič z videa neopúšťa tvoj telefón ani prehliadač.",
+    "betaTag": "Beta",
+    "requestingCamera": "Čakám na povolenie kamery…",
+    "loadingModel": "Načítavam rozpoznávanie pohybu…",
+    "cameraDenied": "Aplikácia potrebuje prístup ku kamere, aby to fungovalo.",
+    "repsLabel": "Opakovania",
+    "cueGoLower": "Skús ísť nižšie",
+    "cueGoodDepth": "Dobrá hĺbka",
+    "privacyNote": "Rozpoznávanie pohybu beží priamo v prehliadači — obraz z kamery sa nikam neposiela ani neukladá.",
+    "nativeNotYet": "Kontrola techniky zatiaľ funguje len vo webovej verzii aplikácie. Mobilná aplikácia na to čaká."
   }
 }

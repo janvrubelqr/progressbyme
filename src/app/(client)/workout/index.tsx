@@ -1,7 +1,8 @@
+import { Ionicons } from '@expo/vector-icons'
 import { Link } from 'expo-router'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ActivityIndicator, FlatList, Pressable, ScrollView, Text, View } from 'react-native'
+import { ActivityIndicator, FlatList, Platform, Pressable, ScrollView, Text, View } from 'react-native'
 
 import { Card } from '@/components/ui/card'
 import { Heading } from '@/components/ui/heading'
@@ -67,9 +68,17 @@ export default function WorkoutListScreen() {
       keyExtractor={item => item.id}
       ListHeaderComponent={
         <View>
-          <Heading underline className="mb-6">
-            {t('workout.listTitle')}
-          </Heading>
+          <View className="mb-6 flex-row items-center justify-between">
+            <Heading underline>{t('workout.listTitle')}</Heading>
+            {Platform.OS === 'web' ? (
+              <Link href="/(client)/form-check" asChild>
+                <Pressable className="flex-row items-center gap-1.5 rounded-full border border-gold/40 bg-gold/10 px-3 py-1.5 active:opacity-60">
+                  <Ionicons name="videocam-outline" size={14} color="#D2A85E" />
+                  <Text className="font-sans-medium text-xs text-gold">{t('formCheck.entryLink')}</Text>
+                </Pressable>
+              </Link>
+            ) : null}
+          </View>
           {presentCategories.length > 1 ? (
             <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-5 -mt-1">
               <View className="flex-row gap-2">

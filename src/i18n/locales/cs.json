@@ -539,5 +539,19 @@
     "todayLogEmpty": "Dnes jsi zatím nic nezaznamenal/a.",
     "todayTotal": "Celkem dnes",
     "photoEstimateTag": "odhad z fotky"
+  },
+  "formCheck": {
+    "entryLink": "Kontrola techniky",
+    "title": "Kontrola techniky — dřep",
+    "subtitle": "Postav se tak, aby tě kamera viděla celého, a zacvič pár dřepů. Appka počítá opakování a hlídá hloubku. Nic z videa neopouští tvůj telefon ani prohlížeč.",
+    "betaTag": "Beta",
+    "requestingCamera": "Čekám na povolení kamery…",
+    "loadingModel": "Načítám rozpoznávání pohybu…",
+    "cameraDenied": "Appka potřebuje přístup ke kameře, aby tohle fungovalo.",
+    "repsLabel": "Opakování",
+    "cueGoLower": "Zkus jít níž",
+    "cueGoodDepth": "Dobrá hloubka",
+    "privacyNote": "Rozpoznávání pohybu běží přímo v prohlížeči — obraz z kamery se nikam neposílá ani neukládá.",
+    "nativeNotYet": "Kontrola techniky zatím funguje jen ve webové verzi appky. Mobilní appka na to čeká."
   }
 }

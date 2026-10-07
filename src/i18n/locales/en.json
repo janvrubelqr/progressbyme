@@ -539,5 +539,19 @@
     "todayLogEmpty": "Nothing logged yet today.",
     "todayTotal": "Total today",
     "photoEstimateTag": "photo estimate"
+  },
+  "formCheck": {
+    "entryLink": "Form check",
+    "title": "Form check — squat",
+    "subtitle": "Stand where the camera can see your whole body and do a few squats. The app counts reps and checks your depth. Nothing from the video ever leaves your phone or browser.",
+    "betaTag": "Beta",
+    "requestingCamera": "Waiting for camera access…",
+    "loadingModel": "Loading motion tracking…",
+    "cameraDenied": "The app needs camera access for this to work.",
+    "repsLabel": "Reps",
+    "cueGoLower": "Try going lower",
+    "cueGoodDepth": "Good depth",
+    "privacyNote": "Motion tracking runs right in your browser — the camera feed is never sent anywhere or saved.",
+    "nativeNotYet": "Form check only works in the web version of the app for now. The mobile app is waiting on this."
   }
 }
