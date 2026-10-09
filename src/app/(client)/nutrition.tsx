@@ -23,6 +23,7 @@ export default function NutritionScreen() {
   const [meals, setMeals] = useState<MealWithItems[]>([])
   const [todayLogs, setTodayLogs] = useState<FoodLog[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [isRegenerating, setIsRegenerating] = useState(false)
 
   const loadPlan = useCallback(async () => {
     if (!profile) return
@@ -65,6 +66,14 @@ export default function NutritionScreen() {
   useEffect(() => {
     loadPlan()
   }, [loadPlan])
+
+  const handleRegenerate = async () => {
+    if (!profile) return
+    setIsRegenerating(true)
+    await supabase.functions.invoke('generate-starter-nutrition-plan', { body: { client_id: profile.id } }).catch(() => {})
+    await loadPlan()
+    setIsRegenerating(false)
+  }
 
   const totals = meals
     .flatMap(meal => meal.meal_items)
@@ -127,12 +136,28 @@ export default function NutritionScreen() {
             </Card>
           )}
 
+          <View className="mb-4 flex-row items-center justify-between gap-3">
+            {plan ? <Heading className="flex-1">{plan.title}</Heading> : <View className="flex-1" />}
+            <Pressable
+              onPress={handleRegenerate}
+              disabled={isRegenerating}
+              className={`flex-row items-center gap-1.5 rounded-full border border-border bg-graph px-3 py-1.5 active:opacity-60 ${
+                isRegenerating ? 'opacity-60' : ''
+              }`}
+            >
+              {isRegenerating ? (
+                <ActivityIndicator size="small" color="#D2A85E" />
+              ) : (
+                <Ionicons name="refresh-outline" size={14} color="#D2A85E" />
+              )}
+              <Text className="font-sans-medium text-xs text-gold">{t('nutrition.regenerate')}</Text>
+            </Pressable>
+          </View>
+
           {!plan ? (
             <Text className="text-muted">{t('nutrition.empty')}</Text>
           ) : (
             <>
-              <Heading className="mb-4">{plan.title}</Heading>
-
           {!profile?.date_of_birth || !profile?.height_cm ? (
             <View className="mb-4 rounded-md border border-amber-400/30 bg-amber-400/10 px-3 py-2.5">
               <Text className="text-sm leading-5 text-amber-400">{t('nutrition.estimatedTargetsNotice')}</Text>

@@ -287,7 +287,8 @@
     "protein": "Protein",
     "carbs": "Sacharidy",
     "fat": "Tuky",
-    "estimatedTargetsNotice": "Cíle jsou zatím odhadem — doplň si výšku, datum narození a aktuální váhu v Mém účtu pro přesnější výpočet."
+    "estimatedTargetsNotice": "Cíle jsou zatím odhadem — doplň si výšku, datum narození a aktuální váhu v Mém účtu pro přesnější výpočet.",
+    "regenerate": "Nový jídelníček"
   },
   "checkin": {
     "title": "Check-in",
