@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/card'
 import { Heading } from '@/components/ui/heading'
 import { LanguageSwitcher } from '@/components/ui/language-switcher'
 import { SignOutButton } from '@/components/ui/sign-out-button'
+import { ThemeSwitcher } from '@/components/ui/theme-switcher'
 import { useAuth } from '@/hooks/use-auth'
 import { useThemeColors } from '@/hooks/use-theme-colors'
 import { supabase } from '@/lib/supabase'
@@ -66,6 +67,7 @@ export default function ClientsListScreen() {
       ListHeaderComponent={
         <View className="mb-6">
           <View className="flex-row flex-wrap items-center justify-end gap-2">
+            <ThemeSwitcher />
             <LanguageSwitcher />
             <SignOutButton onPress={handleSignOut} />
           </View>

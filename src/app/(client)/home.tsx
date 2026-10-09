@@ -11,6 +11,7 @@ import { LanguageSwitcher } from '@/components/ui/language-switcher'
 import { ReadinessTracker } from '@/components/ui/readiness-tracker'
 import { SignOutButton } from '@/components/ui/sign-out-button'
 import { StepsTracker } from '@/components/ui/steps-tracker'
+import { ThemeSwitcher } from '@/components/ui/theme-switcher'
 import { WaterTracker } from '@/components/ui/water-tracker'
 import { WeatherCard } from '@/components/ui/weather-card'
 import { WeightTracker } from '@/components/ui/weight-tracker'
@@ -71,6 +72,7 @@ export default function HomeScreen() {
       refreshControl={<RefreshControl refreshing={isLoading} onRefresh={loadData} tintColor="#D2A85E" />}
     >
       <View className="flex-row flex-wrap items-center justify-end gap-2 pt-16">
+        <ThemeSwitcher />
         <LanguageSwitcher />
         <Link href="/(client)/profile" asChild>
           <Pressable
