@@ -44,7 +44,14 @@ export default function OnboardingScreen() {
     { value: 'improve_endurance', label: t('profile.goalImproveEndurance') },
   ]
   const experienceOptions = DIFFICULTY_LEVELS.map(v => ({ value: v, label: t(`trainer.exerciseLibrary.difficultyLevels.${v}`) }))
-  const equipmentOptions = EQUIPMENT_TYPES.map(v => ({ value: v, label: t(`trainer.exerciseLibrary.equipmentTypes.${v}`) }))
+  // "bodyweight" isn't a real choice here — the plan generator always
+  // includes bodyweight exercises regardless of what's selected (everyone
+  // has their own body available), so showing it as a checkbox implied
+  // unchecking it would exclude those exercises, which it never did.
+  const equipmentOptions = EQUIPMENT_TYPES.filter(v => v !== 'bodyweight').map(v => ({
+    value: v,
+    label: t(`trainer.exerciseLibrary.equipmentTypes.${v}`),
+  }))
   const injuryOptions = CONTRAINDICATION_TAGS.map(v => ({ value: v, label: t(`trainer.exerciseLibrary.contraindicationTags.${v}`) }))
   const daysOptions = TRAINING_DAYS.map(n => ({ value: String(n), label: String(n) }))
 
