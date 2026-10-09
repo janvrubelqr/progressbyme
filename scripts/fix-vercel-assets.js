@@ -38,4 +38,24 @@ fs.writeFileSync(
 
 fs.writeFileSync(path.join(distDir, '.vercelignore'), '')
 
-console.log('dist/ ready for Vercel (assets renamed, vercel.json + .vercelignore written)')
+// `output: "single"` (our app.json web config) is pure client-side SPA
+// bootstrapping — Expo Router's app/+html.tsx customization only takes
+// effect for "static"/"server" output, so it's not an option here.
+// Patching index.html directly instead: viewport-fit=cover is what lets
+// mobile browsers report a real env(safe-area-inset-bottom) at all —
+// without it, the bottom tab bar renders flush against (or under) an
+// iPhone's home-indicator bar, since the page never learns that inset
+// exists. The tab bar layouts then add their own bottom padding from
+// useSafeAreaInsets().
+const indexHtmlPath = path.join(distDir, 'index.html')
+const indexHtml = fs.readFileSync(indexHtmlPath, 'utf8')
+const patchedIndexHtml = indexHtml.replace(
+  /<meta name="viewport" content="[^"]*"\s*\/?>/,
+  '<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover" />'
+)
+if (patchedIndexHtml === indexHtml) {
+  throw new Error('fix-vercel-assets: viewport meta tag not found in dist/index.html — expo\'s export template may have changed')
+}
+fs.writeFileSync(indexHtmlPath, patchedIndexHtml)
+
+console.log('dist/ ready for Vercel (assets renamed, vercel.json + .vercelignore written, viewport-fit=cover patched in)')

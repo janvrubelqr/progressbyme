@@ -1,12 +1,16 @@
 import { Ionicons } from '@expo/vector-icons'
 import { Tabs } from 'expo-router'
 import { useTranslation } from 'react-i18next'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { useThemeColors } from '@/hooks/use-theme-colors'
+
+const BASE_TAB_BAR_HEIGHT = 56
 
 export default function TrainerTabsLayout() {
   const { t } = useTranslation()
   const theme = useThemeColors()
+  const insets = useSafeAreaInsets()
 
   return (
     <Tabs
@@ -17,6 +21,9 @@ export default function TrainerTabsLayout() {
         tabBarStyle: {
           backgroundColor: theme.surface,
           borderTopColor: theme.border,
+          height: BASE_TAB_BAR_HEIGHT + insets.bottom,
+          paddingBottom: insets.bottom,
+          paddingTop: 6,
         },
         tabBarLabelStyle: {
           fontFamily: 'Oswald_500Medium',

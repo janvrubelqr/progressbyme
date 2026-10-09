@@ -1,12 +1,16 @@
 import { Ionicons } from '@expo/vector-icons'
 import { Tabs } from 'expo-router'
 import { useTranslation } from 'react-i18next'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { useThemeColors } from '@/hooks/use-theme-colors'
+
+const BASE_TAB_BAR_HEIGHT = 56
 
 export default function ClientTabsLayout() {
   const { t } = useTranslation()
   const theme = useThemeColors()
+  const insets = useSafeAreaInsets()
 
   return (
     <Tabs
@@ -17,6 +21,13 @@ export default function ClientTabsLayout() {
         tabBarStyle: {
           backgroundColor: theme.surface,
           borderTopColor: theme.border,
+          // On mobile web, the browser only reports a real bottom inset
+          // (home-indicator / gesture bar) once the HTML viewport opts in
+          // via viewport-fit=cover — see src/app/+html.tsx. Without this,
+          // the tab bar renders flush against/under that gesture area.
+          height: BASE_TAB_BAR_HEIGHT + insets.bottom,
+          paddingBottom: insets.bottom,
+          paddingTop: 6,
         },
         tabBarLabelStyle: {
           fontFamily: 'Oswald_500Medium',
