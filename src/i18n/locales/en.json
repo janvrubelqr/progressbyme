@@ -418,7 +418,7 @@
         "barbell": "Barbell",
         "kettlebell": "Kettlebell",
         "resistance_band": "Resistance band",
-        "machine": "Machine",
+        "machine": "Machine (treadmill, bike, rower…)",
         "medicine_ball": "Medicine ball",
         "other": "Other"
       },
