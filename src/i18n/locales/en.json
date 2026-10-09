@@ -220,6 +220,10 @@
     "activityModerate": "Moderate",
     "activityActive": "Active",
     "activityVeryActive": "Very active",
+    "experienceLabel": "Training experience",
+    "equipmentLabel": "Equipment access",
+    "trainingDaysLabel": "Training days per week",
+    "injuriesLabel": "Injuries or limitations",
     "healthConditionsLabel": "Health conditions / injuries",
     "healthConditionsPlaceholder": "e.g. knee pain, high blood pressure, pregnancy…",
     "dietaryRestrictionsLabel": "Dietary restrictions / allergies",
@@ -230,6 +234,7 @@
   },
   "workout": {
     "listTitle": "Workouts",
+    "regenerate": "New plan",
     "listEmpty": "No workouts yet",
     "categoryAll": "All",
     "categories": {

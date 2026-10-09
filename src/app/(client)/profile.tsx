@@ -6,11 +6,22 @@ import { Button } from '@/components/ui/button'
 import { ChipSelect } from '@/components/ui/chip-select'
 import { Eyebrow, Heading } from '@/components/ui/heading'
 import { MessageBanner, type Message } from '@/components/ui/message-banner'
+import { MultiChipSelect } from '@/components/ui/multi-chip-select'
 import { digitsOnly } from '@/lib/digits-only'
+import {
+  CONTRAINDICATION_TAGS,
+  DIFFICULTY_LEVELS,
+  EQUIPMENT_TYPES,
+  type ContraindicationTag,
+  type DifficultyLevel,
+  type EquipmentType,
+} from '@/lib/exercise-taxonomy'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth-store'
 import { type ThemePreference, useThemeStore } from '@/stores/theme-store'
 import type { ActivityLevel, FitnessGoal, Sex } from '@/types/database'
+
+const TRAINING_DAYS = [1, 2, 3, 4, 5, 6, 7] as const
 
 export default function ProfileScreen() {
   const { t } = useTranslation()
@@ -29,6 +40,10 @@ export default function ProfileScreen() {
   const [activityLevel, setActivityLevel] = useState<ActivityLevel | null>(null)
   const [healthConditions, setHealthConditions] = useState('')
   const [dietaryRestrictions, setDietaryRestrictions] = useState('')
+  const [experienceLevel, setExperienceLevel] = useState<DifficultyLevel | null>(null)
+  const [equipmentAccess, setEquipmentAccess] = useState<EquipmentType[]>([])
+  const [trainingDays, setTrainingDays] = useState<number | null>(null)
+  const [injuryTags, setInjuryTags] = useState<ContraindicationTag[]>([])
   const [isSaving, setIsSaving] = useState(false)
   const [message, setMessage] = useState<Message | null>(null)
 
@@ -43,6 +58,10 @@ export default function ProfileScreen() {
     setActivityLevel(profile.activity_level)
     setHealthConditions(profile.health_conditions ?? '')
     setDietaryRestrictions(profile.dietary_restrictions ?? '')
+    setExperienceLevel((profile.experience_level as DifficultyLevel) ?? null)
+    setEquipmentAccess((profile.equipment_access as EquipmentType[]) ?? [])
+    setTrainingDays(profile.training_days_per_week ?? null)
+    setInjuryTags((profile.injury_tags as ContraindicationTag[]) ?? [])
   }, [profile])
 
   const sexOptions: { value: Sex; label: string }[] = [
@@ -72,6 +91,16 @@ export default function ProfileScreen() {
     { value: 'very_active', label: t('profile.activityVeryActive') },
   ]
 
+  const experienceOptions = DIFFICULTY_LEVELS.map(v => ({ value: v, label: t(`trainer.exerciseLibrary.difficultyLevels.${v}`) }))
+  // Same reasoning as onboarding: bodyweight isn't a real equipment choice,
+  // the plan generator always includes it regardless of this list.
+  const equipmentOptions = EQUIPMENT_TYPES.filter(v => v !== 'bodyweight').map(v => ({
+    value: v,
+    label: t(`trainer.exerciseLibrary.equipmentTypes.${v}`),
+  }))
+  const injuryOptions = CONTRAINDICATION_TAGS.map(v => ({ value: v, label: t(`trainer.exerciseLibrary.contraindicationTags.${v}`) }))
+  const daysOptions = TRAINING_DAYS.map(n => ({ value: String(n), label: String(n) }))
+
   const handleSave = async () => {
     if (!profile) return
     setMessage(null)
@@ -89,6 +118,10 @@ export default function ProfileScreen() {
         activity_level: activityLevel,
         health_conditions: healthConditions || null,
         dietary_restrictions: dietaryRestrictions || null,
+        experience_level: experienceLevel,
+        equipment_access: equipmentAccess,
+        training_days_per_week: trainingDays,
+        injury_tags: injuryTags,
       })
       .eq('id', profile.id)
       .select()
@@ -170,6 +203,31 @@ export default function ProfileScreen() {
           {t('profile.activityLabel')}
         </Text>
         <ChipSelect options={activityOptions} value={activityLevel} onChange={setActivityLevel} className="mb-4" />
+
+        <Text className="mb-1.5 font-sans-medium text-xs uppercase tracking-[1px] text-muted">
+          {t('profile.experienceLabel')}
+        </Text>
+        <ChipSelect options={experienceOptions} value={experienceLevel} onChange={setExperienceLevel} className="mb-4" />
+
+        <Text className="mb-1.5 font-sans-medium text-xs uppercase tracking-[1px] text-muted">
+          {t('profile.equipmentLabel')}
+        </Text>
+        <MultiChipSelect options={equipmentOptions} values={equipmentAccess} onChange={setEquipmentAccess} className="mb-4" />
+
+        <Text className="mb-1.5 font-sans-medium text-xs uppercase tracking-[1px] text-muted">
+          {t('profile.trainingDaysLabel')}
+        </Text>
+        <ChipSelect
+          options={daysOptions}
+          value={trainingDays != null ? String(trainingDays) : null}
+          onChange={v => setTrainingDays(Number(v))}
+          className="mb-4"
+        />
+
+        <Text className="mb-1.5 font-sans-medium text-xs uppercase tracking-[1px] text-muted">
+          {t('profile.injuriesLabel')}
+        </Text>
+        <MultiChipSelect options={injuryOptions} values={injuryTags} onChange={setInjuryTags} className="mb-4" />
 
         <Text className="mb-1.5 font-sans-medium text-xs uppercase tracking-[1px] text-muted">
           {t('profile.healthConditionsLabel')}

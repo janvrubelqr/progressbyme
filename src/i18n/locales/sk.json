@@ -220,6 +220,10 @@
     "activityModerate": "Stredná",
     "activityActive": "Aktívna",
     "activityVeryActive": "Veľmi aktívna",
+    "experienceLabel": "Skúsenosti s cvičením",
+    "equipmentLabel": "Dostupné vybavenie",
+    "trainingDaysLabel": "Dní v týždni na tréning",
+    "injuriesLabel": "Zranenia alebo obmedzenia",
     "healthConditionsLabel": "Zdravotné obmedzenia / zranenia",
     "healthConditionsPlaceholder": "Napr. bolesť kolena, vysoký tlak, tehotenstvo…",
     "dietaryRestrictionsLabel": "Stravovacie obmedzenia / alergie",
@@ -230,6 +234,7 @@
   },
   "workout": {
     "listTitle": "Tréningy",
+    "regenerate": "Nový tréning",
     "listEmpty": "Zatiaľ žiadne tréningy",
     "categoryAll": "Všetko",
     "categories": {

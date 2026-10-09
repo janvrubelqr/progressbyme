@@ -6,8 +6,8 @@ import { ActivityIndicator, FlatList, Platform, Pressable, ScrollView, Text, Vie
 
 import { Card } from '@/components/ui/card'
 import { Heading } from '@/components/ui/heading'
-import { WORKOUT_CATEGORIES, type WorkoutCategoryTag } from '@/lib/exercise-taxonomy'
 import { toDateLocale } from '@/lib/date-locale'
+import { WORKOUT_CATEGORIES, type WorkoutCategoryTag } from '@/lib/exercise-taxonomy'
 import { pickTranslation } from '@/lib/pick-translation'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth-store'
@@ -23,6 +23,7 @@ export default function WorkoutListScreen() {
   const [workouts, setWorkouts] = useState<WorkoutRow[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [activeCategory, setActiveCategory] = useState<WorkoutCategoryTag | null>(null)
+  const [isRegenerating, setIsRegenerating] = useState(false)
 
   const loadWorkouts = useCallback(async () => {
     if (!profile) return
@@ -46,6 +47,14 @@ export default function WorkoutListScreen() {
     loadWorkouts()
   }, [loadWorkouts])
 
+  const handleRegenerate = async () => {
+    if (!profile) return
+    setIsRegenerating(true)
+    await supabase.functions.invoke('generate-starter-plan', { body: { client_id: profile.id } }).catch(() => {})
+    await loadWorkouts()
+    setIsRegenerating(false)
+  }
+
   const presentCategories = useMemo(
     () => WORKOUT_CATEGORIES.filter(c => workouts.some(w => w.category === c)),
     [workouts]
@@ -68,16 +77,34 @@ export default function WorkoutListScreen() {
       keyExtractor={item => item.id}
       ListHeaderComponent={
         <View>
-          <View className="mb-6 flex-row items-center justify-between">
-            <Heading underline>{t('workout.listTitle')}</Heading>
-            {Platform.OS === 'web' ? (
-              <Link href="/(client)/form-check" asChild>
-                <Pressable className="flex-row items-center gap-1.5 rounded-full border border-gold/40 bg-gold/10 px-3 py-1.5 active:opacity-60">
-                  <Ionicons name="videocam-outline" size={14} color="#D2A85E" />
-                  <Text className="font-sans-medium text-xs text-gold">{t('formCheck.entryLink')}</Text>
-                </Pressable>
-              </Link>
-            ) : null}
+          <View className="mb-6 flex-row items-center justify-between gap-3">
+            <Heading underline className="flex-1">
+              {t('workout.listTitle')}
+            </Heading>
+            <View className="flex-row items-center gap-2">
+              <Pressable
+                onPress={handleRegenerate}
+                disabled={isRegenerating}
+                className={`flex-row items-center gap-1.5 rounded-full border border-border bg-graph px-3 py-1.5 active:opacity-60 ${
+                  isRegenerating ? 'opacity-60' : ''
+                }`}
+              >
+                {isRegenerating ? (
+                  <ActivityIndicator size="small" color="#D2A85E" />
+                ) : (
+                  <Ionicons name="refresh-outline" size={14} color="#D2A85E" />
+                )}
+                <Text className="font-sans-medium text-xs text-gold">{t('workout.regenerate')}</Text>
+              </Pressable>
+              {Platform.OS === 'web' ? (
+                <Link href="/(client)/form-check" asChild>
+                  <Pressable className="flex-row items-center gap-1.5 rounded-full border border-gold/40 bg-gold/10 px-3 py-1.5 active:opacity-60">
+                    <Ionicons name="videocam-outline" size={14} color="#D2A85E" />
+                    <Text className="font-sans-medium text-xs text-gold">{t('formCheck.entryLink')}</Text>
+                  </Pressable>
+                </Link>
+              ) : null}
+            </View>
           </View>
           {presentCategories.length > 1 ? (
             <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-5 -mt-1">
