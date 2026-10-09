@@ -34,6 +34,7 @@ type Profile = {
   height_cm: number | null
   fitness_goal: string | null
   activity_level: string | null
+  dietary_restrictions: string | null
 }
 
 const ACTIVITY_MULTIPLIER: Record<string, number> = {
@@ -97,6 +98,25 @@ const MEAL_SHARES = [
 function macroShare(food: Food, macroGramsPer100: number): number {
   if (food.kcal_100g <= 0) return 0
   return (macroGramsPer100 * 4) / food.kcal_100g
+}
+
+function normalize(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '') // strip diacritics so "vejce"/"mléko" match regardless of accents
+}
+
+// profiles.dietary_restrictions is free text (e.g. "alergie na vejce") with
+// no structured allergen data to match against — foods has no allergen
+// column either. This is a blunt but effective v1: exclude any food whose
+// name shows up as a substring of what the client wrote. Catches the
+// reported case (an egg allergy noted in free text still got eggs
+// suggested) without needing a whole allergen-tagging data model first.
+function excludeRestrictedFoods(foods: Food[], dietaryRestrictions: string | null): Food[] {
+  if (!dietaryRestrictions?.trim()) return foods
+  const restrictions = normalize(dietaryRestrictions)
+  return foods.filter(food => !restrictions.includes(normalize(food.name)))
 }
 
 function pickMealItems(foods: Food[], mealProteinG: number, cursor: { protein: number; carb: number; fat: number }) {
@@ -163,7 +183,7 @@ Deno.serve(async req => {
 
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('id, date_of_birth, sex, height_cm, fitness_goal, activity_level')
+    .select('id, date_of_birth, sex, height_cm, fitness_goal, activity_level, dietary_restrictions')
     .eq('id', client_id)
     .single()
 
@@ -180,7 +200,7 @@ Deno.serve(async req => {
     .maybeSingle()
 
   const { data: foods } = await supabase.from('foods').select('id, name, kcal_100g, protein_100g, carbs_100g, fat_100g')
-  const foodList = (foods ?? []) as Food[]
+  const foodList = excludeRestrictedFoods((foods ?? []) as Food[], (profile as Profile).dietary_restrictions)
 
   if (foodList.length === 0) {
     return jsonResponse({ created: false, reason: 'no_foods_in_library' })
