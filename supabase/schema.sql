@@ -135,7 +135,11 @@ create table workout_exercises (
   rest_seconds int,
   tempo text,
   video_url text,
-  notes text
+  notes text,
+  -- Set when the client checks this exercise off as done for this session.
+  -- Each workout row is a one-off scheduled instance, not a reused weekly
+  -- template, so it's safe to track completion directly on it.
+  completed_at timestamptz
 );
 
 create table workout_logs (
@@ -456,6 +460,26 @@ create policy "workout_exercises_write_trainer" on workout_exercises
       select 1 from workouts w
       where w.id = workout_exercises.workout_id
         and w.trainer_id = auth.uid()
+    )
+  );
+
+-- A client can also edit their own workout directly (check off exercises,
+-- reorder, add from the catalog, remove) — most workouts are engine-
+-- generated with no trainer_id at all, so this is the only write path for
+-- those.
+create policy "workout_exercises_write_client" on workout_exercises
+  for all using (
+    exists (
+      select 1 from workouts w
+      where w.id = workout_exercises.workout_id
+        and w.client_id = auth.uid()
+    )
+  )
+  with check (
+    exists (
+      select 1 from workouts w
+      where w.id = workout_exercises.workout_id
+        and w.client_id = auth.uid()
     )
   );
 

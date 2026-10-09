@@ -114,6 +114,7 @@ export type WorkoutExercise = {
   tempo: string | null
   video_url: string | null
   notes: string | null
+  completed_at: string | null
 }
 
 export type WorkoutLog = {

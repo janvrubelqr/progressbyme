@@ -257,7 +257,20 @@
     "logError": "Couldn't log this workout",
     "logSuccessTitle": "Done",
     "logSuccess": "Workout logged",
-    "exerciseLibraryLink": "Exercise Library"
+    "exerciseLibraryLink": "Exercise Library",
+    "editToggle": "Edit",
+    "editDone": "Done",
+    "addExercise": "Add exercise",
+    "cancelAdd": "Cancel",
+    "searchPlaceholder": "Search exercises…",
+    "noResults": "No matches",
+    "remove": "Remove",
+    "chatToggle": "AI coach",
+    "chatTitle": "Ask your AI coach",
+    "chatEmpty": "Tell me what you'd like to change — e.g. \"add more ab exercises\".",
+    "chatPlaceholder": "Type a message…",
+    "chatThinking": "Thinking…",
+    "chatError": "Couldn't get a reply right now, please try again."
   },
   "calendar": {
     "title": "Calendar",

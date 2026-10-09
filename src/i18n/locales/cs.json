@@ -257,7 +257,20 @@
     "logError": "Trénink se nepodařilo zalogovat",
     "logSuccessTitle": "Hotovo",
     "logSuccess": "Trénink byl zalogován",
-    "exerciseLibraryLink": "Knihovna cviků"
+    "exerciseLibraryLink": "Knihovna cviků",
+    "editToggle": "Upravit",
+    "editDone": "Hotovo",
+    "addExercise": "Přidat cvik",
+    "cancelAdd": "Zrušit",
+    "searchPlaceholder": "Hledat cvik…",
+    "noResults": "Nic nenalezeno",
+    "remove": "Odebrat",
+    "chatToggle": "AI trenér",
+    "chatTitle": "Zeptej se AI trenéra",
+    "chatEmpty": "Napiš, co chceš v tréninku změnit — třeba „přidej mi víc cviků na břicho“.",
+    "chatPlaceholder": "Napiš zprávu…",
+    "chatThinking": "Přemýšlím…",
+    "chatError": "Teď se nepodařilo odpovědět, zkus to prosím znovu."
   },
   "calendar": {
     "title": "Kalendář",
